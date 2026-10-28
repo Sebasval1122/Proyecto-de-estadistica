@@ -248,6 +248,15 @@ print("Rango:", rango)      # 8
 
 En la práctica, Python ya trae `sorted(lista)` y `lista.sort()`, que usan **Timsort** (una mezcla de Merge Sort e Inserción). Es estable y tiene complejidad `O(n log n)`.
 
+### Cómo ejecutar el código
+
+Todos los algoritmos están en `ordenamiento.py` (solo usa Python 3, sin dependencias).
+
+```bash
+python3 ordenamiento.py           # ordena un ejemplo con cada algoritmo y muestra mediana y rango
+python3 -m unittest -v            # corre las pruebas de test_ordenamiento.py
+```
+
 ### Referencias
 
 - Cormen, T. H., Leiserson, C. E., Rivest, R. L. y Stein, C. *Introduction to Algorithms*. MIT Press.
