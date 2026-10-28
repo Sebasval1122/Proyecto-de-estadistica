@@ -22,8 +22,10 @@ Un **algoritmo de ordenamiento** toma una lista de elementos y los acomoda en un
 | Quick Sort    | `O(n log n)` | `O(n log n)`  | `O(n²)`      | `O(log n)`    | No      |
 | Heap Sort     | `O(n log n)` | `O(n log n)`  | `O(n log n)` | `O(1)`        | No      |
 | Counting Sort | `O(n + k)`   | `O(n + k)`    | `O(n + k)`   | `O(k)`        | Sí      |
+| Radix Sort    | `O(d·(n + b))` | `O(d·(n + b))` | `O(d·(n + b))` | `O(n + b)` | Sí      |
+| Shell Sort    | `O(n log n)` | depende de los saltos | `O(n²)` | `O(1)`      | No      |
 
-> `k` es el rango de valores posibles (valor máximo − valor mínimo + 1).
+> `k` es el rango de valores posibles (valor máximo − valor mínimo + 1), `d` es la cantidad de dígitos del número más grande y `b` es la base (10 en los ejemplos).
 
 ---
 
@@ -177,6 +179,52 @@ def counting_sort(lista):
 ```
 
 **Cuándo usarlo:** con números enteros en un rango pequeño (por ejemplo, edades o calificaciones).
+
+### 8. Ordenamiento por residuos (Radix Sort)
+
+Tampoco compara elementos: ordena los números **dígito por dígito**, empezando por las unidades, luego las decenas, luego las centenas, y así sucesivamente. En cada pasada agrupa los números en "cubetas" según el dígito actual, sin cambiar el orden que ya tenían dentro de cada cubeta (por eso el resultado es correcto).
+
+```python
+def radix_sort(lista):
+    # Esta versión funciona con enteros no negativos.
+    if not lista:
+        return lista
+    exp = 1
+    while max(lista) // exp > 0:
+        cubetas = [[] for _ in range(10)]
+        for x in lista:
+            cubetas[(x // exp) % 10].append(x)
+        lista = [x for cubeta in cubetas for x in cubeta]
+        exp *= 10
+    return lista
+```
+
+> Para incluir números negativos se ordenan aparte los negativos (por su valor absoluto) y luego se colocan, invertidos, antes de los positivos.
+
+**Cuándo usarlo:** con muchos enteros de pocos dígitos (por ejemplo, códigos postales o números de documento), donde puede superar a los algoritmos `O(n log n)`.
+
+### 9. Ordenamiento Shell (Shell Sort)
+
+Es una mejora del ordenamiento por inserción. En lugar de comparar solo elementos vecinos, compara elementos separados por un **salto** (*gap*) grande y lo va reduciendo hasta llegar a 1. Así los elementos lejanos de su posición se mueven rápido, y la pasada final por inserción encuentra la lista casi ordenada.
+
+```python
+def shell_sort(lista):
+    salto = len(lista) // 2
+    while salto > 0:
+        for i in range(salto, len(lista)):
+            actual = lista[i]
+            j = i
+            while j >= salto and lista[j - salto] > actual:
+                lista[j] = lista[j - salto]
+                j -= salto
+            lista[j] = actual
+        salto //= 2
+    return lista
+```
+
+> Su rendimiento depende de la secuencia de saltos. Aquí se usa la original de Shell (`n/2, n/4, …, 1`); otras, como la de Knuth (`1, 4, 13, 40, …`), dan mejores tiempos.
+
+**Cuándo usarlo:** con listas medianas cuando se quiere algo más rápido que inserción sin usar memoria extra ni recursión.
 
 ---
 
