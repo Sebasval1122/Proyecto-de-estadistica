@@ -1,7 +1,7 @@
 import random
 import unittest
 
-from ordenamiento import ALGORITMOS, mediana, radix_sort, rango
+from ordenamiento import ALGORITMOS, medir_tiempos, mediana, radix_sort, rango
 
 
 class TestOrdenamiento(unittest.TestCase):
@@ -29,6 +29,12 @@ class TestOrdenamiento(unittest.TestCase):
         self.assertEqual(mediana(datos), 4.5)
         self.assertEqual(mediana([3, 1, 2]), 2)
         self.assertEqual(rango(datos), 8)
+
+    def test_medir_tiempos(self):
+        tiempos = medir_tiempos(50)
+        nombres = [a.__name__ for a in ALGORITMOS] + ["sorted"]
+        self.assertEqual(list(tiempos), nombres)
+        self.assertTrue(all(t >= 0 for t in tiempos.values()))
 
 
 if __name__ == "__main__":
