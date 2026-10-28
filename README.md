@@ -253,8 +253,34 @@ En la práctica, Python ya trae `sorted(lista)` y `lista.sort()`, que usan **Tim
 Todos los algoritmos están en `ordenamiento.py` (solo usa Python 3, sin dependencias).
 
 ```bash
-python3 ordenamiento.py           # ordena un ejemplo con cada algoritmo y muestra mediana y rango
+python3 ordenamiento.py           # ejemplo, mediana, rango y comparación de tiempos
 python3 -m unittest -v            # corre las pruebas de test_ordenamiento.py
+```
+
+### Comparación de tiempos
+
+`comparar_tiempos()` ordena los mismos enteros aleatorios con cada algoritmo y mide cuánto tarda con `time.perf_counter()`. También incluye `sorted()` de Python como referencia. Un resultado de ejemplo (los tiempos cambian según la computadora):
+
+| Algoritmo     | n = 100 | n = 1 000 | n = 5 000 |
+|---------------|--------:|----------:|----------:|
+| Burbuja       | 0.21 ms | 28.81 ms  | 747.03 ms |
+| Selección     | 0.14 ms | 14.22 ms  | 349.47 ms |
+| Inserción     | 0.13 ms | 14.19 ms  | 358.92 ms |
+| Merge Sort    | 0.08 ms | 1.05 ms   | 6.14 ms   |
+| Quick Sort    | 0.06 ms | 0.94 ms   | 5.64 ms   |
+| Heap Sort     | 0.10 ms | 1.48 ms   | 9.86 ms   |
+| Counting Sort | 0.01 ms | 0.14 ms   | 0.68 ms   |
+| Radix Sort    | 0.02 ms | 0.22 ms   | 1.23 ms   |
+| Shell Sort    | 0.05 ms | 1.01 ms   | 7.96 ms   |
+| `sorted()`    | 0.01 ms | 0.07 ms   | 0.44 ms   |
+
+Se nota la diferencia de complejidad: al multiplicar `n` por 5, los algoritmos `O(n²)` tardan unas 25 veces más, mientras que los `O(n log n)` tardan unas 6 veces más. Counting y Radix son los más rápidos porque los valores están en un rango pequeño, y `sorted()` gana a todos porque está escrito en C.
+
+Para probar otros tamaños:
+
+```python
+from ordenamiento import comparar_tiempos
+comparar_tiempos((1000, 10000))
 ```
 
 ### Referencias

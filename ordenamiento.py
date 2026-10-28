@@ -4,6 +4,9 @@ Las funciones burbuja, seleccion, insercion, heap_sort y shell_sort ordenan
 la lista recibida (in-place) y la devuelven; las demás devuelven una lista nueva.
 """
 
+import random
+import time
+
 
 def burbuja(lista):
     n = len(lista)
@@ -151,6 +154,26 @@ def rango(datos):
     return ordenados[-1] - ordenados[0]
 
 
+def medir_tiempos(n, semilla=0):
+    """Devuelve {nombre: segundos} al ordenar los mismos n enteros aleatorios."""
+    datos = random.Random(semilla).choices(range(n), k=n)
+    tiempos = {}
+    for algoritmo in ALGORITMOS + [sorted]:
+        copia = list(datos)
+        inicio = time.perf_counter()
+        algoritmo(copia)
+        tiempos[algoritmo.__name__] = time.perf_counter() - inicio
+    return tiempos
+
+
+def comparar_tiempos(tamanos=(100, 1000, 5000)):
+    resultados = {n: medir_tiempos(n) for n in tamanos}
+    print(f"{'algoritmo':>14}" + "".join(f"{f'n={n}':>12}" for n in tamanos))
+    for nombre in resultados[tamanos[0]]:
+        fila = "".join(f"{resultados[n][nombre] * 1000:>10.2f}ms" for n in tamanos)
+        print(f"{nombre:>14}{fila}")
+
+
 if __name__ == "__main__":
     datos = [7, 2, 9, 4, 4, 1, 8, 5]
     print("Datos:", datos)
@@ -158,3 +181,5 @@ if __name__ == "__main__":
         print(f"{algoritmo.__name__:>14}:", algoritmo(list(datos)))
     print("Mediana:", mediana(datos))
     print("Rango:", rango(datos))
+    print("\nComparación de tiempos (enteros aleatorios):")
+    comparar_tiempos()
