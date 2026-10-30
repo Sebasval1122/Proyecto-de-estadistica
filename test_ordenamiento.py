@@ -1,7 +1,7 @@
 import random
 import unittest
 
-from ordenamiento import ALGORITMOS, mediana, radix_sort, rango
+from ordenamiento import ALGORITMOS, mediana, rango
 
 
 class TestOrdenamiento(unittest.TestCase):
@@ -17,12 +17,8 @@ class TestOrdenamiento(unittest.TestCase):
     def test_negativos(self):
         caso = [3, -1, 0, -7, 2, -1]
         for algoritmo in ALGORITMOS:
-            if algoritmo is radix_sort:
-                continue
             with self.subTest(algoritmo=algoritmo.__name__):
                 self.assertEqual(algoritmo(list(caso)), sorted(caso))
-        with self.assertRaises(ValueError):
-            radix_sort(caso)
 
     def test_mediana_y_rango(self):
         datos = [7, 2, 9, 4, 4, 1, 8, 5]
