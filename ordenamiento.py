@@ -154,9 +154,9 @@ def rango(datos):
     return ordenados[-1] - ordenados[0]
 
 
-def medir_tiempos(n, semilla=0):
+def medir_tiempos(n):
     """Devuelve {nombre: segundos} al ordenar los mismos n enteros aleatorios."""
-    datos = random.Random(semilla).choices(range(n), k=n)
+    datos = random.SystemRandom().choices(range(n), k=n)
     tiempos = {}
     for algoritmo in ALGORITMOS + [sorted]:
         copia = list(datos)
