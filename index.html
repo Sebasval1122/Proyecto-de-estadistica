@@ -227,6 +227,10 @@ td small { font-weight: 400; opacity: .8; font-size: 12px; }
 ul.clean { margin: 0; padding-left: 20px; color: var(--muted); display: grid; gap: 8px; }
 ul.clean strong { color: var(--ink); }
 .refs { color: var(--muted); font-size: 14px; display: grid; gap: 6px; }
+.card .cite { color: var(--faint); font-size: 12px; font-style: italic; }
+.rbar { display: inline-block; width: 64px; height: 6px; border-radius: 999px; background: rgba(19, 26, 43, .08); margin-right: 10px; vertical-align: middle; overflow: hidden; }
+.nc { text-transform: none; }
+.rbar i { display: block; height: 100%; border-radius: inherit; }
 
 @media (max-width: 560px) {
   .nav { border-radius: 22px; padding: 10px; }
@@ -275,7 +279,7 @@ ul.clean strong { color: var(--ink); }
       <h2>El papel de la estadística en Ingeniería de Sistemas</h2>
       <div class="prose">
         <p>Un sistema de software produce números todo el tiempo: tiempos de respuesta, fallos, usuarios conectados, consumo de memoria. Esos números <strong>varían</strong> de una ejecución a otra por la carga del procesador, la memoria caché o el sistema operativo. La estadística permite separar una diferencia real del ruido y tomar decisiones de ingeniería con un nivel de confianza conocido.</p>
-        <p>Estas son sus aplicaciones más relevantes en la disciplina:</p>
+        <p>Estas son sus aplicaciones más relevantes en la disciplina. Las referencias completas están al final de la página.</p>
       </div>
     </header>
     <div class="grid">
@@ -283,32 +287,38 @@ ul.clean strong { color: var(--ink); }
         <span class="badge">Aplicación elegida</span>
         <h3>Evaluación de rendimiento</h3>
         <p>Comparar algoritmos, lenguajes o configuraciones midiendo tiempos repetidos y probando si las diferencias son significativas.</p>
-        <span class="formula">x̄ ± t·s/√n</span>
+        <span class="formula">media ± t·s/√n</span>
+        <span class="cite">Fuente: Jain, 1991; Lilja, 2000; Georges et al., 2007</span>
       </article>
       <article class="card">
         <h3>Pruebas A/B</h3>
         <p>Mostrar dos versiones de una aplicación a grupos distintos de usuarios y decidir cuál funciona mejor.</p>
         <span class="formula">χ², prueba de proporciones</span>
+        <span class="cite">Fuente: Kohavi, Tang y Xu, 2020</span>
       </article>
       <article class="card">
         <h3>Fiabilidad y calidad</h3>
         <p>Modelar el tiempo entre fallos de un servicio y vigilar con cartas de control que el proceso de desarrollo siga estable.</p>
         <span class="formula">MTBF, Weibull, Shewhart</span>
+        <span class="cite">Fuente: Musa, 1999; Montgomery, 2004</span>
       </article>
       <article class="card">
         <h3>Redes y teoría de colas</h3>
         <p>Dimensionar servidores a partir de la llegada aleatoria de peticiones y del tiempo de espera esperado.</p>
         <span class="formula">Poisson λ, cola M/M/1</span>
+        <span class="cite">Fuente: Harchol-Balter, 2013</span>
       </article>
       <article class="card">
         <h3>Aprendizaje automático</h3>
         <p>Entrenar y validar modelos predictivos; la regresión y la clasificación son modelos estadísticos.</p>
         <span class="formula">ŷ = β₀ + β₁x</span>
+        <span class="cite">Fuente: Hastie, Tibshirani y Friedman, 2009</span>
       </article>
       <article class="card">
         <h3>Capacidad y anomalías</h3>
         <p>Usar percentiles de latencia y series de tiempo para planear infraestructura y detectar comportamientos extraños.</p>
         <span class="formula">p95, p99, σ</span>
+        <span class="cite">Fuente: Beyer et al., 2016; Jain, 1991</span>
       </article>
     </div>
   </section>
@@ -425,7 +435,7 @@ ul.clean strong { color: var(--ink); }
     <header>
       <span class="eyebrow"><span class="tag">c</span> Análisis estadístico · 10 %</span>
       <h2>Lo que dicen los números</h2>
-      <p class="lede">Cuatro herramientas, de la más simple a la más formal: resumir, ver el crecimiento, contrastar hipótesis y modelar con regresión.</p>
+      <p class="lede">Cinco herramientas, de la más simple a la más formal: resumir, ver el crecimiento, medir la correlación, contrastar hipótesis y modelar con regresión.</p>
     </header>
 
     <div class="block">
@@ -469,25 +479,43 @@ ul.clean strong { color: var(--ink); }
     </div>
 
     <div class="block">
-      <h3>3. Pruebas de hipótesis</h3>
+      <h3>3. Correlación entre el tamaño y el tiempo</h3>
       <div class="prose">
-        <p>Para cada par de algoritmos y cada tamaño se aplica la <strong>prueba t de Welch</strong>, que compara dos medias sin suponer varianzas iguales. Como los tiempos tienen valores atípicos, el resultado se confirma con la <strong>prueba U de Mann-Whitney</strong>, que compara rangos y no se deja arrastrar por los extremos. Con 100 mediciones por grupo, el teorema central del límite respalda el uso de la prueba t.</p>
+        <p>El <strong>coeficiente r de Pearson</strong> mide qué tan cerca de una recta están los puntos (n, tiempo): vale 1 si la relación es lineal y creciente, y 0 si no hay relación lineal. El <strong>coeficiente ρ de Spearman</strong> hace lo mismo con los rangos de los datos, así que mide si el tiempo siempre aumenta con n, sea cual sea la forma de la curva, y casi no le afectan los valores atípicos. Cada coeficiente se calcula con las 700 mediciones de cada algoritmo.</p>
+      </div>
+      <div class="table-wrap"><table id="cor-table"></table></div>
+      <p class="note" id="cor-note"></p>
+    </div>
+
+    <div class="block">
+      <h3>4. Pruebas de hipótesis</h3>
+      <div class="prose">
+        <p>Primero se pregunta si los tres algoritmos tardan lo mismo, comparándolos juntos con un <strong>ANOVA de un factor</strong> para cada tamaño (H₀: μ<sub>Quick</sub> = μ<sub>Merge</sub> = μ<sub>Bubble</sub>). Como el ANOVA supone varianzas iguales y aquí no lo son, el resultado se confirma con la <strong>prueba de Kruskal-Wallis</strong>, su equivalente basado en rangos.</p>
+      </div>
+      <div class="table-wrap"><table id="anova-table"></table></div>
+      <p class="note" id="anova-note"></p>
+
+      <h3>Comparaciones por pares</h3>
+      <div class="prose">
+        <p>El ANOVA dice si hay alguna diferencia, pero no entre cuáles algoritmos. Para cada par de algoritmos y cada tamaño se aplica la <strong>prueba t de Welch</strong>, que compara dos medias sin suponer varianzas iguales. Como los tiempos tienen valores atípicos, el resultado se confirma con la <strong>prueba U de Mann-Whitney</strong>, que compara rangos y no se deja arrastrar por los extremos. Con 100 mediciones por grupo, el teorema central del límite respalda el uso de la prueba t.</p>
+        <p>Son 21 comparaciones (3 pares × 7 tamaños). Si cada una se hace con α = 0,05, la probabilidad de obtener al menos un falso positivo sube hasta 1 − 0,95²¹ ≈ 66 %. La <strong>corrección de Bonferroni</strong> lo evita dividiendo α entre el número de comparaciones: α/21. Actívela para ver qué conclusiones se mantienen.</p>
       </div>
       <div class="controls">
         <div class="ctrl"><label for="ht-a">Algoritmo A</label><select id="ht-a"></select></div>
         <div class="ctrl"><label for="ht-b">Algoritmo B</label><select id="ht-b"></select></div>
         <div class="ctrl"><label for="ht-n">Tamaño n</label><select id="ht-n"></select></div>
         <div class="ctrl"><span>Significancia α</span><div class="seg" id="ht-alpha"></div></div>
+        <div class="ctrl"><span>Comparaciones múltiples</span><div class="seg" id="ht-bonf"></div></div>
       </div>
       <div class="verdict" id="ht-out" aria-live="polite"></div>
 
       <h3>Todas las comparaciones de un vistazo</h3>
-      <p class="sub">Valor p de la prueba t de Welch y cuántas veces más tarda el segundo algoritmo que el primero. Verde: se rechaza H₀ con el α elegido. Ámbar: no hay evidencia suficiente de diferencia.</p>
+      <p class="sub">Valor p de la prueba t de Welch y cuántas veces más tarda el segundo algoritmo que el primero. Verde: se rechaza H₀ con el α elegido (con α/21 si la corrección de Bonferroni está activa). Ámbar: no hay evidencia suficiente de diferencia.</p>
       <div class="table-wrap"><table id="ht-matrix"></table></div>
     </div>
 
     <div class="block">
-      <h3>4. Regresión del tiempo según el tamaño</h3>
+      <h3>5. Regresión del tiempo según el tamaño</h3>
       <div class="prose">
         <p>Se ajusta una regresión por mínimos cuadrados con las 700 mediciones de cada algoritmo. La pregunta es <strong>qué forma de crecimiento explica mejor los datos</strong>: lineal (n), casi lineal (n log n) o cuadrática (n²). Cambie el modelo y observe el R² y la gráfica de residuos.</p>
       </div>
@@ -567,9 +595,22 @@ ul.clean strong { color: var(--ink); }
   <footer class="section glass">
     <span class="eyebrow">Fuente y metodología</span>
     <div class="prose" id="source"></div>
+    <h3>Referencias</h3>
     <div class="refs">
+      <span>Beyer, B., Jones, C., Petoff, J. y Murphy, N. R. <em>Site Reliability Engineering: How Google Runs Production Systems</em>. O’Reilly, 2016.</span>
       <span>Cormen, T. H., Leiserson, C. E., Rivest, R. L. y Stein, C. <em>Introduction to Algorithms</em>, 4.ª ed. MIT Press, 2022.</span>
+      <span>Dunn, O. J. (1961). Multiple comparisons among means. <em>Journal of the American Statistical Association</em>, 56(293), 52–64.</span>
+      <span>Georges, A., Buytaert, D. y Eeckhout, L. (2007). Statistically rigorous Java performance evaluation. <em>Proceedings of OOPSLA 2007</em>, 57–76. ACM.</span>
+      <span>Harchol-Balter, M. <em>Performance Modeling and Design of Computer Systems: Queueing Theory in Action</em>. Cambridge University Press, 2013.</span>
+      <span>Hastie, T., Tibshirani, R. y Friedman, J. <em>The Elements of Statistical Learning</em>, 2.ª ed. Springer, 2009.</span>
+      <span>Jain, R. <em>The Art of Computer Systems Performance Analysis</em>. Wiley, 1991.</span>
+      <span>Kohavi, R., Tang, D. y Xu, Y. <em>Trustworthy Online Controlled Experiments: A Practical Guide to A/B Testing</em>. Cambridge University Press, 2020.</span>
+      <span>Kruskal, W. H. y Wallis, W. A. (1952). Use of ranks in one-criterion variance analysis. <em>Journal of the American Statistical Association</em>, 47(260), 583–621.</span>
+      <span>Lilja, D. J. <em>Measuring Computer Performance: A Practitioner’s Guide</em>. Cambridge University Press, 2000.</span>
+      <span>Montgomery, D. C. <em>Control estadístico de la calidad</em>, 3.ª ed. Limusa Wiley, 2004.</span>
       <span>Montgomery, D. C. <em>Diseño y análisis de experimentos</em>, 2.ª ed. Limusa Wiley, 2004.</span>
+      <span>Musa, J. D. <em>Software Reliability Engineering</em>. McGraw-Hill, 1999.</span>
+      <span>Spearman, C. (1904). The proof and measurement of association between two things. <em>The American Journal of Psychology</em>, 15(1), 72–101.</span>
       <span>Walpole, R. E., Myers, R. H., Myers, S. L. y Ye, K. <em>Probabilidad y estadística para ingeniería y ciencias</em>, 9.ª ed. Pearson, 2012.</span>
       <span>Welch, B. L. (1947). The generalization of “Student’s” problem when several different population variances are involved. <em>Biometrika</em>, 34, 28–35.</span>
     </div>
@@ -633,13 +674,27 @@ ul.clean strong { color: var(--ink); }
     const h = tCrit(alpha, df) * se;
     return { t, df, p: pT2(t, df), diff, ic: [diff - h, diff + h] };
   }
+  function ranks(v) {  // rangos 1..N en el orden original; los empates reciben el rango promedio
+    const idx = v.map((_, i) => i).sort((i, j) => v[i] - v[j]), r = new Array(v.length);
+    for (let i = 0; i < idx.length;) { let j = i; while (j + 1 < idx.length && v[idx[j + 1]] === v[idx[i]]) j++; for (let k = i; k <= j; k++) r[idx[k]] = (i + j) / 2 + 1; i = j + 1; }
+    return r;
+  }
   function mannWhitney(a, b) {
-    const all = a.map(v => [v, 0]).concat(b.map(v => [v, 1])).sort((x, y) => x[0] - y[0]);
-    const r = new Array(all.length);
-    for (let i = 0; i < all.length;) { let j = i; while (j + 1 < all.length && all[j + 1][0] === all[i][0]) j++; for (let k = i; k <= j; k++) r[k] = (i + j) / 2 + 1; i = j + 1; }
-    let R1 = 0; all.forEach((x, i) => { if (x[1] === 0) R1 += r[i]; });
-    const n1 = a.length, n2 = b.length, U = R1 - n1 * (n1 + 1) / 2, z = (U - n1 * n2 / 2) / Math.sqrt(n1 * n2 * (n1 + n2 + 1) / 12);
+    const r = ranks(a.concat(b)), n1 = a.length, n2 = b.length;
+    const U = sum(r.slice(0, n1)) - n1 * (n1 + 1) / 2, z = (U - n1 * n2 / 2) / Math.sqrt(n1 * n2 * (n1 + n2 + 1) / 12);
     return { U, z, p: pZ2(z) };
+  }
+  function anova(groups) {
+    const all = groups.flat(), m = mean(all), d1 = groups.length - 1, d2 = all.length - groups.length;
+    const ssb = sum(groups.map(g => g.length * (mean(g) - m) ** 2)), ssw = sum(groups.map(g => variance(g) * (g.length - 1)));
+    const F = (ssb / d1) / (ssw / d2);
+    return { F, d1, d2, p: ibeta(d2 / (d2 + d1 * F), d2 / 2, d1 / 2) };
+  }
+  function kruskal(groups) {
+    const r = ranks(groups.flat()), N = r.length; let off = 0, s = 0;
+    groups.forEach(g => { const Ri = sum(r.slice(off, off + g.length)); s += Ri * Ri / g.length; off += g.length; });
+    const H = 12 / (N * (N + 1)) * s - 3 * (N + 1);
+    return { H, p: Math.exp(-H / 2) };  // cola de la chi-cuadrado con 2 gl: siempre son 3 algoritmos
   }
   function ols(x, y) {
     const N = x.length, mx = mean(x), my = mean(y);
@@ -732,7 +787,7 @@ ul.clean strong { color: var(--ink); }
     ['Valores', `${int(M.rango_valores[0])} a ${int(M.rango_valores[1])}`], ['Unidad', 'milisegundos (ms)'], ['Registros', int(D.mediciones.length)],
   ].map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('');
   $('source').innerHTML = `<p><strong>Fuente de los datos:</strong> experimento computacional propio, ejecutado el ${M.fecha} con ${M.lenguaje} sobre ${M.sistema} (${M.procesador}). Los algoritmos son las implementaciones de QuickSort, MergeSort y BubbleSort incluidas en este proyecto. Las ${int(D.mediciones.length)} mediciones están en <span class="mono">datos/mediciones.json</span> y <span class="mono">datos/mediciones.csv</span>.</p>
-  <p><strong>Metodología:</strong> diseño factorial de dos factores (algoritmo × tamaño) con ${M.repeticiones} réplicas por combinación, entradas aleatorias compartidas y orden de ejecución sorteado. Análisis con estadística descriptiva, intervalos de confianza t al 95 %, prueba t de Welch, prueba U de Mann-Whitney y regresión lineal por mínimos cuadrados sobre transformaciones de n. Todos los cálculos se hacen en esta página a partir de los datos crudos.</p>`;
+  <p><strong>Metodología:</strong> diseño factorial de dos factores (algoritmo × tamaño) con ${M.repeticiones} réplicas por combinación, entradas aleatorias compartidas y orden de ejecución sorteado. Análisis con estadística descriptiva, intervalos de confianza t al 95 %, correlación de Pearson y de Spearman, ANOVA de un factor, prueba de Kruskal-Wallis, prueba t de Welch con corrección de Bonferroni opcional, prueba U de Mann-Whitney y regresión lineal por mínimos cuadrados sobre transformaciones de n. Todos los cálculos se hacen en esta página a partir de los datos crudos.</p>`;
 
   // ---------- explorador de datos ----------
   const ex = { alg: 'Todos', n: 'Todos', page: 0 }, PAGE = 10;
@@ -809,19 +864,35 @@ ul.clean strong { color: var(--ink); }
     growth.update();
   });
 
-  // 3. pruebas de hipótesis
-  const ht = { a: 'QuickSort', b: 'MergeSort', n: 1000, alpha: .05 };
+  // 3. correlación
+  const COR = {}; ALGS.forEach(a => { const F = FIT[a]; COR[a] = { pearson: F.n.r, spearman: ols(ranks(F.xs), ranks(F.ys)).r, teorica: F[THEORY[a]].r, p: F.n.p }; });
+  const rbar = (r, a) => `<span class="rbar"><i style="width:${Math.max(0, r) * 100}%;background:${COLOR[a]}"></i></span>${nf(r, 4)}`;
+  $('cor-table').innerHTML = `<thead><tr><th>Algoritmo</th><th>r de Pearson (n, t)</th><th>r²</th><th><span class="nc">ρ</span> de Spearman (n, t)</th><th>r con la complejidad teórica</th><th>Valor p (H₀: <span class="nc">ρ</span> = 0)</th></tr></thead><tbody>` +
+    ALGS.map(a => { const c = COR[a]; return `<tr><td class="alg">${dot(a)}${a}</td><td>${rbar(c.pearson, a)}</td><td>${nf(c.pearson ** 2, 4)}</td><td>${rbar(c.spearman, a)}</td><td>${rbar(c.teorica, a)} <small>(${MODELS[THEORY[a]].eq})</small></td><td>${pf(c.p)}</td></tr>`; }).join('') + '</tbody>';
+  const cb = COR.BubbleSort;
+  $('cor-note').innerHTML = `Los tres algoritmos tienen una <strong>correlación positiva muy fuerte</strong> entre n y el tiempo (r de Pearson entre ${nf(Math.min(...ALGS.map(a => COR[a].pearson)), 3)} y ${nf(Math.max(...ALGS.map(a => COR[a].pearson)), 3)}), y todas son significativas (p &lt; 0,0001). La diferencia está en la forma: en BubbleSort la r de Pearson con n es ${nf(cb.pearson, 3)}, pero sube a ${nf(cb.teorica, 3)} si se usa n² en lugar de n, porque la relación no es lineal sino cuadrática. La ρ de Spearman (${nf(cb.spearman, 3)} en BubbleSort) no depende de la forma de la curva y por eso queda cerca de 1 en los tres casos. En general, correlación no implica causalidad; aquí sí se puede hablar de causa porque n se controló en un experimento.`;
+
+  // 4. pruebas de hipótesis
+  const ht = { a: 'QuickSort', b: 'MergeSort', n: 1000, alpha: .05, bonf: false };
   fillSelect($('ht-a'), algOpts, ht.a); fillSelect($('ht-b'), algOpts, ht.b); fillSelect($('ht-n'), nOpts, ht.n);
   $('ht-a').onchange = e => { ht.a = e.target.value; renderHt(); };
   $('ht-b').onchange = e => { ht.b = e.target.value; renderHt(); };
   $('ht-n').onchange = e => { ht.n = +e.target.value; renderHt(); };
   segmented($('ht-alpha'), [{ v: .01, label: '0,01' }, { v: .05, label: '0,05' }, { v: .10, label: '0,10' }], ht.alpha, v => { ht.alpha = v; renderHt(); });
-  const PAIRS = [['QuickSort', 'MergeSort'], ['QuickSort', 'BubbleSort'], ['MergeSort', 'BubbleSort']];
+  segmented($('ht-bonf'), [{ v: false, label: 'Sin corrección' }, { v: true, label: 'Bonferroni' }], ht.bonf, v => { ht.bonf = v; renderHt(); });
+  const PAIRS = [['QuickSort', 'MergeSort'], ['QuickSort', 'BubbleSort'], ['MergeSort', 'BubbleSort']], NCOMP = PAIRS.length * NS.length;
+  const AOV = NS.map(n => { const g = ALGS.map(a => G[a][n]), v = g.map(variance); return { n, ...anova(g), kw: kruskal(g), vr: Math.max(...v) / Math.min(...v) }; });
   function renderHt() {
+    const aEff = ht.bonf ? ht.alpha / NCOMP : ht.alpha;
+    const aTxt = ht.bonf ? `α = ${nf(ht.alpha, 2)} con la corrección de Bonferroni (α/${NCOMP} = ${nf(aEff, 4)})` : `α = ${nf(ht.alpha, 2)}`;
+    $('anova-table').innerHTML = `<thead><tr><th>Tamaño</th><th>F</th><th>gl</th><th>Valor p (ANOVA)</th><th>H de Kruskal-Wallis</th><th>Valor p (K-W)</th><th>Varianza mayor ÷ menor</th></tr></thead><tbody>` +
+      AOV.map(r => `<tr><td>n = ${int(r.n)}</td><td>${nf(r.F, 1)}</td><td>${r.d1} y ${r.d2}</td><td class="${r.p < ht.alpha ? 'cell-ok' : 'cell-no'}">${pf(r.p)}</td><td>${nf(r.kw.H, 1)}</td><td class="${r.kw.p < ht.alpha ? 'cell-ok' : 'cell-no'}">${pf(r.kw.p)}</td><td>×${int(r.vr)}</td></tr>`).join('') + '</tbody>';
+    const aRej = AOV.filter(r => r.p < ht.alpha && r.kw.p < ht.alpha).length;
+    $('anova-note').innerHTML = `Con α = ${nf(ht.alpha, 2)}, el ANOVA y Kruskal-Wallis rechazan H₀ en <strong>${aRej} de ${NS.length} tamaños</strong>: al menos un algoritmo tiene un tiempo medio distinto. La última columna muestra por qué conviene la confirmación con rangos: la varianza mayor llega a ser entre ${int(Math.min(...AOV.map(r => r.vr)))} y ${int(Math.max(...AOV.map(r => r.vr)))} veces la menor, por la escala de BubbleSort y por algunos valores atípicos, y eso viola el supuesto de varianzas iguales del ANOVA.`;
     const out = $('ht-out');
     if (ht.a === ht.b) out.innerHTML = '<p>Elija dos algoritmos distintos para compararlos.</p>';
     else {
-      const A = G[ht.a][ht.n], B = G[ht.b][ht.n], w = welch(A, B, ht.alpha), u = mannWhitney(A, B), rej = w.p < ht.alpha, urej = u.p < ht.alpha;
+      const A = G[ht.a][ht.n], B = G[ht.b][ht.n], w = welch(A, B, aEff), u = mannWhitney(A, B), rej = w.p < aEff, urej = u.p < aEff;
       const ra = R[ht.a][ht.n], rb = R[ht.b][ht.n], faster = ra.media < rb.media ? ht.a : ht.b, slower = faster === ht.a ? ht.b : ht.a;
       const pct = Math.abs(ra.media - rb.media) / Math.max(ra.media, rb.media) * 100, hasBubble = ht.a === 'BubbleSort' || ht.b === 'BubbleSort';
       out.innerHTML = `<span class="pill ${rej ? 'ok' : 'no'}">${rej ? 'Se rechaza H₀: la diferencia es significativa' : 'No se rechaza H₀: no hay evidencia de diferencia'}</span>
@@ -829,23 +900,23 @@ ul.clean strong { color: var(--ink); }
           <div class="stat"><span>x̄ ${ht.a}</span><b>${ms(ra.media)} ms</b></div>
           <div class="stat"><span>x̄ ${ht.b}</span><b>${ms(rb.media)} ms</b></div>
           <div class="stat"><span>Diferencia x̄A − x̄B</span><b>${ms(w.diff)} ms</b></div>
-          <div class="stat"><span>IC ${nf((1 - ht.alpha) * 100, 0)} % de la diferencia</span><b>[${ms(w.ic[0])} ; ${ms(w.ic[1])}]</b></div>
+          <div class="stat"><span>IC ${nf((1 - aEff) * 100, ht.bonf ? 2 : 0)} % de la diferencia</span><b>[${ms(w.ic[0])} ; ${ms(w.ic[1])}]</b></div>
           <div class="stat"><span>t de Welch</span><b>${nf(w.t, 2)}</b></div>
           <div class="stat"><span>Grados de libertad</span><b>${nf(w.df, 1)}</b></div>
           <div class="stat"><span>Valor p (t)</span><b>${pf(w.p)}</b></div>
           <div class="stat"><span>Valor p (Mann-Whitney)</span><b>${pf(u.p)}</b></div>
         </div>
-        <p>Con n = ${int(ht.n)} y α = ${nf(ht.alpha, 2)}, ${rej
+        <p>Con n = ${int(ht.n)} y ${aTxt}, ${rej
           ? `el valor p (${pf(w.p)}) es menor que α, así que <strong>${faster} es más rápido que ${slower}</strong> de forma estadísticamente significativa: en promedio tarda un ${nf(pct, 1)} % menos.${hasBubble ? '' : ' Aun así, en la práctica la diferencia es de fracciones de milisegundo.'}`
           : `el valor p (${pf(w.p)}) es mayor que α: la diferencia observada (${nf(pct, 1)} %) <strong>puede explicarse por el ruido de medición</strong> y no permite afirmar que un algoritmo sea más rápido que el otro.`}
           ${urej === rej ? 'La prueba de Mann-Whitney llega a la misma conclusión.' : `La prueba de Mann-Whitney ${urej ? 'sí' : 'no'} encuentra diferencia (p = ${pf(u.p)}): como compara rangos, no la afectan los valores atípicos que inflan la varianza en la prueba t.`}</p>`;
     }
     $('ht-matrix').innerHTML = `<thead><tr><th>Comparación</th>${NS.map(n => `<th>n = ${int(n)}</th>`).join('')}</tr></thead><tbody>` +
-      PAIRS.map(([a, b]) => `<tr><td class="alg">${a} vs ${b}</td>${NS.map(n => { const w = welch(G[a][n], G[b][n], ht.alpha); return `<td class="${w.p < ht.alpha ? 'cell-ok' : 'cell-no'}">${pf(w.p)}<br><small>×${nf(R[b][n].media / R[a][n].media, 2)}</small></td>`; }).join('')}</tr>`).join('') + '</tbody>';
+      PAIRS.map(([a, b]) => `<tr><td class="alg">${a} vs ${b}</td>${NS.map(n => { const w = welch(G[a][n], G[b][n], aEff); return `<td class="${w.p < aEff ? 'cell-ok' : 'cell-no'}">${pf(w.p)}<br><small>×${nf(R[b][n].media / R[a][n].media, 2)}</small></td>`; }).join('')}</tr>`).join('') + '</tbody>';
   }
   renderHt();
 
-  // 4. regresión
+  // 5. regresión
   const rg = { alg: 'BubbleSort', model: 'n2' };
   segmented($('rg-alg'), algOpts, rg.alg, v => { rg.alg = v; renderRg(); }, v => COLOR[v]);
   segmented($('rg-model'), Object.entries(MODELS).map(([v, m]) => ({ v, label: m.label })), rg.model, v => { rg.model = v; renderRg(); });
@@ -897,14 +968,16 @@ ul.clean strong { color: var(--ink); }
 
   // ---------- conclusiones ----------
   const qmSig = NS.filter(n => welch(G.QuickSort[n], G.MergeSort[n], .05).p < .05).length;
+  const qmSigB = NS.filter(n => welch(G.QuickSort[n], G.MergeSort[n], .05).p < .05 / NCOMP).length;
+  const aovAll = AOV.every(r => r.p < .05 && r.kw.p < .05);
   const qmFast = NS.filter(n => R.QuickSort[n].media < R.MergeSort[n].media).length;
   const qmPct = mean(NS.map(n => Math.abs(R.QuickSort[n].media - R.MergeSort[n].media) / R.MergeSort[n].media * 100));
   const bAll = NS.every(n => welch(G.QuickSort[n], G.BubbleSort[n], .05).p < .05 && welch(G.MergeSort[n], G.BubbleSort[n], .05).p < .05);
   const small = NS[0];
   $('cc-answers').innerHTML = [
-    `<strong>BubbleSort es significativamente más lento</strong> ${bAll ? 'en todos los tamaños' : 'en casi todos los tamaños'} (p &lt; 0,0001): pasa de ser ${nf(R.BubbleSort[small].media / R.QuickSort[small].media, 1)} veces más lento que QuickSort con n = ${int(small)} a ${nf(ratio, 0)} veces con n = ${int(big)}.`,
-    `<strong>QuickSort y MergeSort están prácticamente empatados.</strong> QuickSort tuvo menor media en ${qmFast} de ${NS.length} tamaños, con una diferencia promedio del ${nf(qmPct, 1)} %, y solo en ${qmSig} de ${NS.length} tamaños la diferencia fue significativa con α = 0,05.`,
-    `<strong>El crecimiento coincide con la teoría.</strong> El exponente medido es k ≈ ${nf(FIT.BubbleSort.log.b1, 2)} para BubbleSort (cuadrático) y k ≈ ${nf(FIT.QuickSort.log.b1, 2)} y ${nf(FIT.MergeSort.log.b1, 2)} para QuickSort y MergeSort (n log n). El modelo n² explica el ${nf(FIT.BubbleSort.n2.r2 * 100, 1)} % de la variación de BubbleSort.`,
+    `<strong>BubbleSort es significativamente más lento</strong> ${bAll ? 'en todos los tamaños' : 'en casi todos los tamaños'} (p &lt; 0,0001): pasa de ser ${nf(R.BubbleSort[small].media / R.QuickSort[small].media, 1)} veces más lento que QuickSort con n = ${int(small)} a ${nf(ratio, 0)} veces con n = ${int(big)}. El ANOVA y la prueba de Kruskal-Wallis confirman ${aovAll ? 'en todos los tamaños' : 'en la mayoría de los tamaños'} que los tres algoritmos no tardan lo mismo.`,
+    `<strong>QuickSort y MergeSort están prácticamente empatados.</strong> QuickSort tuvo menor media en ${qmFast} de ${NS.length} tamaños, con una diferencia promedio del ${nf(qmPct, 1)} %, y solo en ${qmSig} de ${NS.length} tamaños la diferencia fue significativa con α = 0,05; con la corrección de Bonferroni quedan ${qmSigB} de ${NS.length}.`,
+    `<strong>El crecimiento coincide con la teoría.</strong> El exponente medido es k ≈ ${nf(FIT.BubbleSort.log.b1, 2)} para BubbleSort (cuadrático) y k ≈ ${nf(FIT.QuickSort.log.b1, 2)} y ${nf(FIT.MergeSort.log.b1, 2)} para QuickSort y MergeSort (n log n). El modelo n² explica el ${nf(FIT.BubbleSort.n2.r2 * 100, 1)} % de la variación de BubbleSort, y la correlación de Spearman (ρ ≥ ${nf(Math.min(...ALGS.map(a => COR[a].spearman)), 3)}) muestra que en los tres algoritmos el tiempo crece de forma casi perfectamente monótona con n.`,
     `<strong>Con muchos datos la brecha se vuelve enorme:</strong> para un millón de elementos el modelo estima ${dur(predict('BubbleSort', 1e6))} con BubbleSort, frente a ${dur(predict('QuickSort', 1e6))} con QuickSort.`,
     `<strong>Los tiempos tienen sesgo a la derecha y valores atípicos</strong> por interrupciones del sistema; la mediana y la prueba de Mann-Whitney evitan que esos extremos distorsionen la conclusión.`,
   ].map(s => `<li>${s}</li>`).join('');
@@ -914,6 +987,6 @@ ul.clean strong { color: var(--ink); }
   const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(l => l.classList.toggle('on', l.getAttribute('href') === '#' + e.target.id)); }), { rootMargin: '-40% 0px -55% 0px' });
   document.querySelectorAll('section[id]').forEach(s => io.observe(s));
 
-  window.__stats = { pT2, tCrit, welch, mannWhitney, ols };  // expuesto solo para verificar los cálculos
+  window.__stats = { pT2, tCrit, welch, mannWhitney, ols, anova, kruskal, ranks, AOV, COR };  // expuesto solo para verificar los cálculos
 })();
 </script>
