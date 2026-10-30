@@ -1,6 +1,6 @@
 <title>Quick vs Merge vs Bubble</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Estudio estadístico del tiempo de ejecución de QuickSort, MergeSort y BubbleSort: 100 mediciones por tamaño, pruebas de hipótesis y regresión.">
+<meta name="description" content="Estudio estadístico del tiempo de ejecución de QuickSort, MergeSort y BubbleSort: 100 mediciones por tamaño y pruebas de hipótesis.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
@@ -181,7 +181,6 @@ select { appearance: none; background-image: linear-gradient(45deg, transparent 
 .btn { padding: 10px 14px; display: inline-flex; gap: 8px; align-items: center; }
 .btn:hover { background-color: var(--glass-strong); }
 .btn:disabled { opacity: .4; cursor: default; }
-input[type="range"] { width: min(100%, 420px); accent-color: var(--ink); }
 :focus-visible { outline: 3px solid var(--quick); outline-offset: 2px; }
 
 /* Tablas */
@@ -196,7 +195,6 @@ td.alg i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; m
 td small { font-weight: 400; opacity: .8; font-size: 12px; }
 .cell-ok { color: var(--ok); background: var(--ok-bg); font-weight: 600; }
 .cell-no { color: var(--warn); background: var(--warn-bg); font-weight: 600; }
-.best { font-weight: 700; color: var(--ink); background: rgba(19, 26, 43, .07); }
 .pager { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; color: var(--muted); font-size: 14px; }
 .pager .btns { display: flex; gap: 8px; }
 
@@ -214,15 +212,11 @@ td small { font-weight: 400; opacity: .8; font-size: 12px; }
 .pill.no { color: var(--warn); background: var(--warn-bg); }
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 130px), 1fr)); gap: 10px; }
 .stat { background: rgba(19, 26, 43, .04); border-radius: var(--r-sm); padding: 10px 12px; display: grid; gap: 2px; min-width: 0; }
-.stat.wide { grid-column: 1 / -1; }
 .stat span { font: 600 11px/1.3 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--faint); }
 .stat b { font: 600 17px/1.3 var(--f-mono); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .verdict p { color: var(--muted); max-width: 90ch; }
 .verdict p strong { color: var(--ink); }
 
-.cards3 { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
-.cards3 .card b.big { font: 800 36px/1.05 var(--f-display); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
-.pred-n { font: 700 22px/1 var(--f-mono); font-variant-numeric: tabular-nums; }
 
 ul.clean { margin: 0; padding-left: 20px; color: var(--muted); display: grid; gap: 8px; }
 ul.clean strong { color: var(--ink); }
@@ -257,7 +251,7 @@ ul.clean strong { color: var(--ink); }
   <header class="hero glass">
     <span class="eyebrow">Proyecto de Estadística · Ingeniería de Sistemas</span>
     <h1>¿Cuánto cuesta <em>ordenar</em>?</h1>
-    <p class="lede">Medimos <strong>100 veces</strong> el tiempo que tardan <strong>QuickSort</strong>, <strong>MergeSort</strong> y <strong>BubbleSort</strong> en ordenar listas de 100 a 2.000 números. Con estadística descriptiva, pruebas de hipótesis y regresión decidimos, con evidencia y no por intuición, cuál conviene usar y cómo crece su costo.</p>
+    <p class="lede">Medimos <strong>100 veces</strong> el tiempo que tardan <strong>QuickSort</strong>, <strong>MergeSort</strong> y <strong>BubbleSort</strong> en ordenar listas de 100 a 2.000 números. Con estadística descriptiva y pruebas de hipótesis decidimos, con evidencia y no por intuición, cuál conviene usar y cómo crece su costo.</p>
     <div class="kpis" id="kpis"></div>
     <div class="race">
       <div class="race-head">
@@ -330,15 +324,13 @@ ul.clean strong { color: var(--ink); }
         <ol class="qlist">
           <li><span><strong>¿Hay diferencia significativa</strong> entre los tiempos medios de los algoritmos para un mismo tamaño de entrada?</span></li>
           <li><span><strong>¿Cómo crece el tiempo con n?</strong> ¿Coincide con la complejidad teórica de cada algoritmo?</span></li>
-          <li><span><strong>¿Cuánto tardaría cada uno</strong> con listas mucho más grandes que las medidas?</span></li>
         </ol>
       </div>
       <div class="block">
         <h3>Hipótesis</h3>
         <div class="hyp">
           <div>H₀: μ<sub>A</sub> = μ<sub>B</sub> · los dos algoritmos tardan lo mismo en promedio</div>
-          <div>H₁: μ<sub>A</sub> ≠ μ<sub>B</sub> · hay diferencia en el tiempo medio</div>
-          <div>H₀: β₁ = 0 · el tamaño no explica el tiempo (regresión)</div>
+          <div>H<sub>a</sub>: μ<sub>A</sub> ≠ μ<sub>B</sub> · hay diferencia en el tiempo medio</div>
         </div>
       </div>
     </div>
@@ -425,7 +417,7 @@ ul.clean strong { color: var(--ink); }
     <header>
       <span class="eyebrow"><span class="tag">c</span> Análisis estadístico · 10 %</span>
       <h2>Lo que dicen los números</h2>
-      <p class="lede">Cuatro herramientas, de la más simple a la más formal: resumir, ver el crecimiento, contrastar hipótesis y modelar con regresión.</p>
+      <p class="lede">Tres herramientas, de la más simple a la más formal: resumir, ver el crecimiento y contrastar hipótesis.</p>
     </header>
 
     <div class="block">
@@ -454,6 +446,7 @@ ul.clean strong { color: var(--ink); }
         </div>
       </div>
       <p class="note" id="ds-note"></p>
+      <p class="note"><strong>¿Por qué el histograma no tiene forma de campana?</strong> Porque muestra los tiempos individuales, y un tiempo de ejecución tiene un piso (el algoritmo no puede tardar menos de lo que exigen sus operaciones) pero no un techo: cualquier interrupción del sistema operativo solo puede alargar una medición. Eso produce una cola larga hacia la derecha, es decir, <strong>sesgo positivo</strong>. Repetir más veces no cambia esa forma, solo la dibuja con más detalle, y usar listas más grandes tampoco: n es un factor del experimento, no el tamaño de la muestra. El <strong>teorema central del límite</strong> no habla de los datos sino de la <strong>media muestral</strong>: si se repitiera el experimento muchas veces, las medias de cada grupo de 100 mediciones sí formarían una campana. Por eso las pruebas t y los intervalos de confianza de esta página son válidos aunque los tiempos no sean normales.</p>
     </div>
 
     <div class="block">
@@ -486,43 +479,6 @@ ul.clean strong { color: var(--ink); }
       <div class="table-wrap"><table id="ht-matrix"></table></div>
     </div>
 
-    <div class="block">
-      <h3>4. Regresión del tiempo según el tamaño</h3>
-      <div class="prose">
-        <p>Se ajusta una regresión por mínimos cuadrados con las 700 mediciones de cada algoritmo. La pregunta es <strong>qué forma de crecimiento explica mejor los datos</strong>: lineal (n), casi lineal (n log n) o cuadrática (n²). Cambie el modelo y observe el R² y la gráfica de residuos.</p>
-      </div>
-      <div class="controls">
-        <div class="ctrl"><span>Algoritmo</span><div class="seg" id="rg-alg"></div></div>
-        <div class="ctrl"><span>Modelo</span><div class="seg" id="rg-model"></div></div>
-      </div>
-      <div class="verdict" id="rg-out"></div>
-      <div class="grid-2">
-        <div class="chart-card">
-          <div><h3>Mediciones y modelo ajustado</h3><p class="sub" id="rg-sub"></p></div>
-          <div class="chart"><canvas id="c-reg" role="img" aria-label="Dispersión y modelo ajustado"></canvas></div>
-        </div>
-        <div class="chart-card">
-          <div><h3>Residuos</h3><p class="sub">Un buen modelo deja residuos sin patrón alrededor de cero.</p></div>
-          <div class="chart"><canvas id="c-res" role="img" aria-label="Residuos del modelo"></canvas></div>
-        </div>
-      </div>
-
-      <h3>R² de cada modelo</h3>
-      <div class="table-wrap"><table id="rg-matrix"></table></div>
-      <p class="note">Para QuickSort y MergeSort los modelos <strong>n</strong> y <strong>n log n</strong> dan un R² casi idéntico: entre 100 y 2.000 elementos, log₂ n solo pasa de 6,6 a 11, así que las dos curvas casi se superponen. Lo que sí queda claro es que el modelo cuadrático ajusta peor. El exponente k, que se calcula a continuación, ayuda a desempatar: un valor algo mayor que 1 es lo esperado para n log n.</p>
-
-      <h3>Exponente de crecimiento medido</h3>
-      <div class="prose"><p>Si el tiempo crece como n<sup>k</sup>, al tomar logaritmos queda una recta: ln t = ln a + k·ln n. La pendiente <strong>k</strong> estimada indica el orden de crecimiento real: cerca de 1 es casi lineal (n log n da entre 1,1 y 1,2 en este rango) y cerca de 2 es cuadrático.</p></div>
-      <div class="cards3" id="exp"></div>
-
-      <h3>Predicción para entradas más grandes</h3>
-      <div class="controls">
-        <div class="ctrl"><label for="pred-range">Tamaño de la lista</label><input type="range" id="pred-range" min="0" max="100" value="50"></div>
-        <span class="pred-n" id="pred-n"></span>
-      </div>
-      <div class="cards3" id="pred"></div>
-      <p class="note">Predicciones con el modelo de complejidad teórica (n log n para QuickSort y MergeSort, n² para BubbleSort). Más allá de n = 2.000 es una <strong>extrapolación</strong>: sirve como orden de magnitud, no como cifra exacta.</p>
-    </div>
   </section>
 
   <!-- D) CONCLUSIONES -->
@@ -548,7 +504,7 @@ ul.clean strong { color: var(--ink); }
       <article class="card">
         <h3>Valor para la ingeniería</h3>
         <ul class="clean">
-          <li>El modelo de regresión permite <strong>planear capacidad</strong>: estimar cuánto tardará un proceso cuando crezcan los datos, antes de que ocurra.</li>
+          <li>Saber cómo crece el tiempo permite <strong>planear capacidad</strong>: si duplicar los datos cuadruplica el tiempo, conviene cambiar de algoritmo antes de que los datos crezcan.</li>
           <li>Las pruebas de hipótesis evitan <strong>decisiones tomadas por ruido</strong>: una diferencia del 5 % puede no ser real.</li>
           <li>El mismo método sirve para comparar bases de datos, servidores, versiones de una aplicación o configuraciones de red.</li>
         </ul>
@@ -625,7 +581,8 @@ ul.clean strong { color: var(--ink); }
   function resumen(arr) {
     const s = [...arr].sort((a, b) => a - b), m = mean(s), d = Math.sqrt(variance(s));
     const q1 = quant(s, .25), q3 = quant(s, .75), iqr = q3 - q1, h = tCrit(.05, s.length - 1) * d / Math.sqrt(s.length);
-    return { media: m, mediana: quant(s, .5), sd: d, cv: d / m, min: s[0], max: s[s.length - 1], q1, q3, ic: [m - h, m + h], atip: s.filter(x => x < q1 - 1.5 * iqr || x > q3 + 1.5 * iqr).length };
+    const asim = sum(s.map(x => ((x - m) / d) ** 3)) / s.length;
+    return { media: m, mediana: quant(s, .5), sd: d, cv: d / m, asim, min: s[0], max: s[s.length - 1], q1, q3, ic: [m - h, m + h], atip: s.filter(x => x < q1 - 1.5 * iqr || x > q3 + 1.5 * iqr).length };
   }
   function welch(a, b, alpha) {
     const n1 = a.length, n2 = b.length, v1 = variance(a) / n1, v2 = variance(b) / n2, se = Math.sqrt(v1 + v2);
@@ -641,49 +598,17 @@ ul.clean strong { color: var(--ink); }
     const n1 = a.length, n2 = b.length, U = R1 - n1 * (n1 + 1) / 2, z = (U - n1 * n2 / 2) / Math.sqrt(n1 * n2 * (n1 + n2 + 1) / 12);
     return { U, z, p: pZ2(z) };
   }
-  function ols(x, y) {
-    const N = x.length, mx = mean(x), my = mean(y);
-    let sxx = 0, sxy = 0, sst = 0;
-    for (let i = 0; i < N; i++) { sxx += (x[i] - mx) ** 2; sxy += (x[i] - mx) * (y[i] - my); sst += (y[i] - my) ** 2; }
-    const b1 = sxy / sxx, b0 = my - b1 * mx;
-    let sse = 0; for (let i = 0; i < N; i++) sse += (y[i] - b0 - b1 * x[i]) ** 2;
-    const se = Math.sqrt(sse / (N - 2) / sxx), t = b1 / se, h = tCrit(.05, N - 2) * se, r2 = 1 - sse / sst;
-    return { b0, b1, se, t, p: pT2(t, N - 2), ic: [b1 - h, b1 + h], r2, r: Math.sign(b1) * Math.sqrt(r2), N };
-  }
 
   // ---------- datos agrupados ----------
   const G = {}; ALGS.forEach(a => { G[a] = {}; NS.forEach(n => G[a][n] = []); });
   D.mediciones.forEach(m => G[m.algoritmo][m.n].push(m.tiempo_ms));
   const R = {}; ALGS.forEach(a => { R[a] = {}; NS.forEach(n => R[a][n] = resumen(G[a][n])); });
-  const MODELS = {
-    n: { label: 'Lineal · n', f: n => n, eq: 'n' },
-    nlogn: { label: 'n log n', f: n => n * Math.log2(n), eq: 'n·log₂n' },
-    n2: { label: 'Cuadrático · n²', f: n => n * n, eq: 'n²' },
-  };
-  const THEORY = { QuickSort: 'nlogn', MergeSort: 'nlogn', BubbleSort: 'n2' };
-  const FIT = {}; ALGS.forEach(a => {
-    const xs = [], ys = []; NS.forEach(n => G[a][n].forEach(t => { xs.push(n); ys.push(t); }));
-    FIT[a] = { xs, ys, log: ols(xs.map(Math.log), ys.map(Math.log)) };
-    Object.keys(MODELS).forEach(k => FIT[a][k] = ols(xs.map(MODELS[k].f), ys));
-  });
-  const bestModel = a => Object.keys(MODELS).reduce((x, k) => FIT[a][k].r2 > FIT[a][x].r2 ? k : x);
-  const predict = (a, n) => { const m = FIT[a][THEORY[a]]; return Math.max(0, m.b0 + m.b1 * MODELS[THEORY[a]].f(n)); };
 
   // ---------- formato ----------
   const nf = (x, d) => x.toLocaleString('es-CO', { minimumFractionDigits: d, maximumFractionDigits: d });
   const ms = x => nf(x, x < 1 ? 4 : x < 10 ? 3 : x < 100 ? 2 : 1);
   const int = x => Math.round(x).toLocaleString('es-CO');
   const pf = p => p < 1e-4 ? '< 0,0001' : nf(p, 4);
-  const SUP = '⁰¹²³⁴⁵⁶⁷⁸⁹';
-  const sci = x => { if (Math.abs(x) >= 1e-3) return nf(x, 4); const e = Math.floor(Math.log10(Math.abs(x))); return nf(x / 10 ** e, 3) + '·10' + String(e).replace('-', '⁻').replace(/\d/g, d => SUP[d]); };
-  function dur(v) {
-    const s = v / 1000;
-    if (v < 1000) return ms(v) + ' ms';
-    if (s < 60) return nf(s, s < 10 ? 2 : 1) + ' s';
-    if (s < 3600) return nf(s / 60, 1) + ' min';
-    if (s < 86400) return nf(s / 3600, 1) + ' h';
-    return nf(s / 86400, 1) + ' días';
-  }
   const dot = a => `<i style="background:${COLOR[a]}"></i>`;
   const logTicks = v => [0.01, 0.1, 1, 10, 100, 1000].some(t => Math.abs(v - t) < t * 1e-6) ? ms(v) : '';
 
@@ -732,7 +657,7 @@ ul.clean strong { color: var(--ink); }
     ['Valores', `${int(M.rango_valores[0])} a ${int(M.rango_valores[1])}`], ['Unidad', 'milisegundos (ms)'], ['Registros', int(D.mediciones.length)],
   ].map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('');
   $('source').innerHTML = `<p><strong>Fuente de los datos:</strong> experimento computacional propio, ejecutado el ${M.fecha} con ${M.lenguaje} sobre ${M.sistema} (${M.procesador}). Los algoritmos son las implementaciones de QuickSort, MergeSort y BubbleSort incluidas en este proyecto. Las ${int(D.mediciones.length)} mediciones están en <span class="mono">datos/mediciones.json</span> y <span class="mono">datos/mediciones.csv</span>.</p>
-  <p><strong>Metodología:</strong> diseño factorial de dos factores (algoritmo × tamaño) con ${M.repeticiones} réplicas por combinación, entradas aleatorias compartidas y orden de ejecución sorteado. Análisis con estadística descriptiva, intervalos de confianza t al 95 %, prueba t de Welch, prueba U de Mann-Whitney y regresión lineal por mínimos cuadrados sobre transformaciones de n. Todos los cálculos se hacen en esta página a partir de los datos crudos.</p>`;
+  <p><strong>Metodología:</strong> diseño factorial de dos factores (algoritmo × tamaño) con ${M.repeticiones} réplicas por combinación, entradas aleatorias compartidas y orden de ejecución sorteado. Análisis con estadística descriptiva, intervalos de confianza t al 95 %, prueba t de Welch, y prueba U de Mann-Whitney. Todos los cálculos se hacen en esta página a partir de los datos crudos.</p>`;
 
   // ---------- explorador de datos ----------
   const ex = { alg: 'Todos', n: 'Todos', page: 0 }, PAGE = 10;
@@ -760,7 +685,6 @@ ul.clean strong { color: var(--ink); }
   const grid = { color: LINE }, tint = (hex, a) => hex + Math.round(a * 255).toString(16).padStart(2, '0');
   const yMs = extra => ({ grid, title: { display: true, text: 'Tiempo (ms)' }, ...extra });
   const xN = { type: 'linear', grid, title: { display: true, text: 'Tamaño de entrada n' }, ticks: { callback: v => int(v) } };
-  const jitter = () => (Math.random() - .5) * 24;
 
   // 1. descriptiva
   const ds = { n: 1000, alg: 'QuickSort' };
@@ -782,7 +706,7 @@ ul.clean strong { color: var(--ink); }
     hist.data.datasets[0].backgroundColor = tint(COLOR[ds.alg], .8);
     hist.update();
     const r = R[ds.alg][ds.n];
-    $('hist-sub').textContent = `${ds.alg}, n = ${int(ds.n)} · media ${ms(r.media)} ms · mediana ${ms(r.mediana)} ms`;
+    $('hist-sub').textContent = `${ds.alg}, n = ${int(ds.n)} · media ${ms(r.media)} ms · mediana ${ms(r.mediana)} ms · asimetría ${nf(r.asim, 2)} (una normal tiene 0)`;
   }
   function renderDs() {
     $('ds-body').innerHTML = ALGS.map(a => { const r = R[a][ds.n]; return `<tr><td class="alg">${dot(a)}${a}</td><td>${ms(r.media)}</td><td>${ms(r.mediana)}</td><td>${ms(r.sd)}</td><td>${nf(r.cv * 100, 1)} %</td><td>${ms(r.min)}</td><td>${ms(r.q1)}</td><td>${ms(r.q3)}</td><td>${ms(r.max)}</td><td>[${ms(r.ic[0])} ; ${ms(r.ic[1])}]</td><td>${r.atip}</td></tr>`; }).join('');
@@ -845,67 +769,16 @@ ul.clean strong { color: var(--ink); }
   }
   renderHt();
 
-  // 4. regresión
-  const rg = { alg: 'BubbleSort', model: 'n2' };
-  segmented($('rg-alg'), algOpts, rg.alg, v => { rg.alg = v; renderRg(); }, v => COLOR[v]);
-  segmented($('rg-model'), Object.entries(MODELS).map(([v, m]) => ({ v, label: m.label })), rg.model, v => { rg.model = v; renderRg(); });
-  const reg = new Chart($('c-reg'), { type: 'scatter', data: { datasets: [
-      { label: 'Mediciones', data: [], pointRadius: 2.5, pointHoverRadius: 4 },
-      { label: 'Modelo ajustado', type: 'line', data: [], borderColor: INK, backgroundColor: INK, borderWidth: 2, pointRadius: 0, borderDash: [6, 4] }] },
-    options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: i => `n ≈ ${int(i.raw.x)} · ${ms(i.raw.y)} ms` } } },
-      scales: { x: xN, y: yMs({ min: 0, ticks: { callback: ms } }) } } });
-  const res = new Chart($('c-res'), { type: 'scatter', data: { datasets: [{ label: 'Residuo', data: [], pointRadius: 2.5 }] },
-    options: { maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: i => `n ≈ ${int(i.raw.x)} · residuo ${ms(i.raw.y)} ms` } } },
-      scales: { x: xN, y: { grid: { color: c => c.tick && c.tick.value === 0 ? 'rgba(19,26,43,.4)' : LINE }, title: { display: true, text: 'Observado − ajustado (ms)' }, ticks: { callback: ms } } } } });
-  function renderRg() {
-    const F = FIT[rg.alg], m = F[rg.model], f = MODELS[rg.model].f, col = COLOR[rg.alg], best = bestModel(rg.alg);
-    reg.data.datasets[0].data = F.xs.map((x, i) => ({ x: x + jitter(), y: F.ys[i] }));
-    reg.data.datasets[0].backgroundColor = tint(col, .35);
-    reg.data.datasets[1].data = Array.from({ length: 60 }, (_, i) => { const n = NS[0] + i * (big - NS[0]) / 59; return { x: n, y: m.b0 + m.b1 * f(n) }; });
-    reg.update();
-    res.data.datasets[0].data = F.xs.map((x, i) => ({ x: x + jitter(), y: F.ys[i] - (m.b0 + m.b1 * f(x)) }));
-    res.data.datasets[0].backgroundColor = tint(col, .4);
-    res.update();
-    $('rg-sub').textContent = `${rg.alg}: ${int(m.N)} mediciones con el modelo ${MODELS[rg.model].label}.`;
-    $('rg-out').innerHTML = `<div class="stats">
-        <div class="stat wide"><span>Ecuación ajustada</span><b>t̂ = ${sci(m.b0)} + ${sci(m.b1)} · ${MODELS[rg.model].eq}</b></div>
-        <div class="stat"><span>R²</span><b>${nf(m.r2, 4)}</b></div>
-        <div class="stat"><span>r de Pearson</span><b>${nf(m.r, 4)}</b></div>
-        <div class="stat"><span>Error estándar de β₁</span><b>${sci(m.se)}</b></div>
-        <div class="stat"><span>t para β₁</span><b>${nf(m.t, 1)}</b></div>
-        <div class="stat"><span>Valor p (H₀: β₁ = 0)</span><b>${pf(m.p)}</b></div>
-      </div>
-      <p>El modelo explica el <strong>${nf(m.r2 * 100, 1)} %</strong> de la variación del tiempo de ${rg.alg}. Como el valor p es ${pf(m.p)}, se rechaza H₀: <strong>el tamaño de entrada sí explica el tiempo</strong>. ${best === rg.model
-        ? `Es el modelo con mayor R² para ${rg.alg}${THEORY[rg.alg] === best ? ' y coincide con su complejidad teórica.' : '.'}`
-        : `El modelo ${MODELS[best].label} lo explica mejor (R² = ${nf(FIT[rg.alg][best].r2, 4)}); observe la curva que forman los residuos con este modelo.`}
-      El R² no llega a 1 porque las 100 repeticiones de un mismo n no tardan exactamente lo mismo.</p>`;
-  }
-  renderRg();
-  $('rg-matrix').innerHTML = `<thead><tr><th>Algoritmo</th>${Object.values(MODELS).map(m => `<th>${m.label}</th>`).join('')}<th>Complejidad teórica</th></tr></thead><tbody>` +
-    ALGS.map(a => { const best = bestModel(a);
-      return `<tr><td class="alg">${dot(a)}${a}</td>${Object.keys(MODELS).map(k => `<td class="${k === best ? 'best' : ''}">${nf(FIT[a][k].r2, 4)}</td>`).join('')}<td class="mono">O(${MODELS[THEORY[a]].eq})</td></tr>`; }).join('') + '</tbody>';
-  $('exp').innerHTML = ALGS.map(a => { const l = FIT[a].log;
-    return `<article class="card"><small>${a} · teoría O(${MODELS[THEORY[a]].eq})</small><b class="big" style="color:${COLOR[a]}">k ≈ ${nf(l.b1, 2)}</b><p>IC 95 %: [${nf(l.ic[0], 3)} ; ${nf(l.ic[1], 3)}] · R² = ${nf(l.r2, 3)}</p><p>Duplicar n multiplica el tiempo por ≈ ${nf(2 ** l.b1, 1)}: ${l.b1 > 1.6 ? 'crecimiento cuadrático.' : 'algo más que lineal, como n log n.'}</p></article>`; }).join('');
-
-  const predN = v => Math.round(10 ** (3 + 3 * v / 100));  // de 1.000 a 1.000.000 en escala logarítmica
-  function renderPred() {
-    const n = predN(+$('pred-range').value);
-    $('pred-n').textContent = 'n = ' + int(n);
-    $('pred').innerHTML = ALGS.map(a => `<article class="card"><small>${a}</small><b class="big" style="color:${COLOR[a]}">${dur(predict(a, n))}</b><p>tiempo estimado para ordenar ${int(n)} elementos</p></article>`).join('');
-  }
-  $('pred-range').oninput = renderPred; renderPred();
-
   // ---------- conclusiones ----------
   const qmSig = NS.filter(n => welch(G.QuickSort[n], G.MergeSort[n], .05).p < .05).length;
   const qmFast = NS.filter(n => R.QuickSort[n].media < R.MergeSort[n].media).length;
   const qmPct = mean(NS.map(n => Math.abs(R.QuickSort[n].media - R.MergeSort[n].media) / R.MergeSort[n].media * 100));
   const bAll = NS.every(n => welch(G.QuickSort[n], G.BubbleSort[n], .05).p < .05 && welch(G.MergeSort[n], G.BubbleSort[n], .05).p < .05);
-  const small = NS[0];
+  const small = NS[0], half = big / 2;
   $('cc-answers').innerHTML = [
     `<strong>BubbleSort es significativamente más lento</strong> ${bAll ? 'en todos los tamaños' : 'en casi todos los tamaños'} (p &lt; 0,0001): pasa de ser ${nf(R.BubbleSort[small].media / R.QuickSort[small].media, 1)} veces más lento que QuickSort con n = ${int(small)} a ${nf(ratio, 0)} veces con n = ${int(big)}.`,
     `<strong>QuickSort y MergeSort están prácticamente empatados.</strong> QuickSort tuvo menor media en ${qmFast} de ${NS.length} tamaños, con una diferencia promedio del ${nf(qmPct, 1)} %, y solo en ${qmSig} de ${NS.length} tamaños la diferencia fue significativa con α = 0,05.`,
-    `<strong>El crecimiento coincide con la teoría.</strong> El exponente medido es k ≈ ${nf(FIT.BubbleSort.log.b1, 2)} para BubbleSort (cuadrático) y k ≈ ${nf(FIT.QuickSort.log.b1, 2)} y ${nf(FIT.MergeSort.log.b1, 2)} para QuickSort y MergeSort (n log n). El modelo n² explica el ${nf(FIT.BubbleSort.n2.r2 * 100, 1)} % de la variación de BubbleSort.`,
-    `<strong>Con muchos datos la brecha se vuelve enorme:</strong> para un millón de elementos el modelo estima ${dur(predict('BubbleSort', 1e6))} con BubbleSort, frente a ${dur(predict('QuickSort', 1e6))} con QuickSort.`,
+    `<strong>El crecimiento coincide con la teoría.</strong> Al duplicar n de ${int(half)} a ${int(big)}, el tiempo medio de BubbleSort se multiplica por ${nf(R.BubbleSort[big].media / R.BubbleSort[half].media, 1)} (cerca de 4, lo esperado para n²), mientras que el de QuickSort y MergeSort se multiplica por ${nf(R.QuickSort[big].media / R.QuickSort[half].media, 1)} y ${nf(R.MergeSort[big].media / R.MergeSort[half].media, 1)} (algo más de 2, lo esperado para n log n).`,
     `<strong>Los tiempos tienen sesgo a la derecha y valores atípicos</strong> por interrupciones del sistema; la mediana y la prueba de Mann-Whitney evitan que esos extremos distorsionen la conclusión.`,
   ].map(s => `<li>${s}</li>`).join('');
 
@@ -914,6 +787,6 @@ ul.clean strong { color: var(--ink); }
   const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(l => l.classList.toggle('on', l.getAttribute('href') === '#' + e.target.id)); }), { rootMargin: '-40% 0px -55% 0px' });
   document.querySelectorAll('section[id]').forEach(s => io.observe(s));
 
-  window.__stats = { pT2, tCrit, welch, mannWhitney, ols };  // expuesto solo para verificar los cálculos
+  window.__stats = { pT2, tCrit, welch, mannWhitney, R };  // expuesto solo para verificar los cálculos
 })();
 </script>

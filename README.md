@@ -122,7 +122,7 @@ python3 benchmark.py              # mide 100 veces cada algoritmo por tamaño y 
 
 ### Estudio estadístico
 
-`index.html` presenta el estudio completo: planteamiento del problema, recolección de datos, análisis (estadística descriptiva, pruebas de hipótesis y regresión) y conclusiones. Se abre directamente en el navegador; los datos ya vienen incluidos.
+`index.html` presenta el estudio completo: planteamiento del problema, recolección de datos, análisis (estadística descriptiva y pruebas de hipótesis) y conclusiones. Se abre directamente en el navegador; los datos ya vienen incluidos.
 
 Los datos medidos están en `datos/mediciones.json` y `datos/mediciones.csv` (una fila por medición: algoritmo, tamaño `n`, número de repetición y tiempo en milisegundos).
 
