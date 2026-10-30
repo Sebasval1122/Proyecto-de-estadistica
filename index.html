@@ -712,7 +712,7 @@ ul.clean strong { color: var(--ink); }
     $('ds-body').innerHTML = ALGS.map(a => { const r = R[a][ds.n]; return `<tr><td class="alg">${dot(a)}${a}</td><td>${ms(r.media)}</td><td>${ms(r.mediana)}</td><td>${ms(r.sd)}</td><td>${nf(r.cv * 100, 1)} %</td><td>${ms(r.min)}</td><td>${ms(r.q1)}</td><td>${ms(r.q3)}</td><td>${ms(r.max)}</td><td>[${ms(r.ic[0])} ; ${ms(r.ic[1])}]</td><td>${r.atip}</td></tr>`; }).join('');
     bars.data.datasets[0].data = ALGS.map(a => R[a][ds.n].media);
     bars.data.datasets[1].data = ALGS.map(a => R[a][ds.n].mediana);
-    bars.options.scales.y.min = 10 ** Math.floor(Math.log10(Math.min(...bars.data.datasets[1].data)));
+    bars.options.scales.y.min = 10 ** Math.floor(Math.log10(Math.min(...bars.data.datasets[1].data) / 2));  // la barra más baja ocupa al menos 0,3 décadas sobre el eje
     bars.update();
     renderHist();
     const q = R.QuickSort[ds.n], m = R.MergeSort[ds.n], b = R.BubbleSort[ds.n];
