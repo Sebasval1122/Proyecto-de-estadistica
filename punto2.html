@@ -1,0 +1,1854 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Punto 2: Tiempos de Procesamiento (Equipos A y B) · Proyecto de Aula</title>
+<meta name="description" content="Estudio inferencial de rendimiento computacional: bondad de ajuste chi-cuadrado, contrastes paramétricos t-Student vs Normal Z y prueba no paramétrica de Mann-Whitney.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* ==========================================================================
+   Design System & Tokens (Idéntico a index.html)
+   ========================================================================== */
+:root {
+  --bg: #eceff6;
+  --ink: #131a2b;
+  --muted: #535d75;
+  --faint: #828ba1;
+  --line: rgba(19, 26, 43, .09);
+  --glass: rgba(255, 255, 255, .58);
+  --glass-strong: rgba(255, 255, 255, .82);
+  --glass-edge: rgba(255, 255, 255, .92);
+  --equipa: #2563eb;
+  --equipb: #059669;
+  --normal: #4f46e5;
+  --gamma: #ea580c;
+  --accent: #7c3aed;
+  --ok: #157a3c;
+  --ok-bg: rgba(21, 122, 60, .1);
+  --warn: #9a5b06;
+  --warn-bg: rgba(186, 117, 9, .12);
+  --shadow: 0 1px 1px rgba(19, 26, 43, .04), 0 18px 40px -18px rgba(28, 44, 92, .22);
+  --r-lg: 28px;
+  --r-md: 18px;
+  --r-sm: 12px;
+  --f-display: "Bricolage Grotesque", "Figtree", system-ui, sans-serif;
+  --f-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 84px; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 16px/1.6 var(--f-body);
+  -webkit-font-smoothing: antialiased;
+  margin: 0;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  z-index: 10; background: var(--bg);
+}
+
+/* Fondo con luces difusas (Atmósfera) */
+.atmos { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.atmos span { position: absolute; border-radius: 50%; filter: blur(80px); opacity: .32; }
+.atmos .a1 { width: 46vmax; height: 46vmax; background: var(--equipa); top: -14vmax; left: -12vmax; }
+.atmos .a2 { width: 38vmax; height: 38vmax; background: var(--equipb); top: 32vh; right: -16vmax; opacity: .26; }
+.atmos .a3 { width: 36vmax; height: 36vmax; background: var(--gamma); bottom: -16vmax; left: 22vw; opacity: .22; }
+
+.wrap {
+  position: relative; z-index: 1;
+  max-width: 1120px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 64px;
+  display: grid; gap: 28px;
+}
+.wrap > * { min-width: 0; }
+
+.glass {
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  backdrop-filter: blur(22px) saturate(160%);
+  border: 1px solid var(--glass-edge);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow);
+}
+
+/* Navegación Sticky */
+.nav {
+  position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); z-index: 20;
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  padding: 8px 10px 8px 18px; margin-top: 12px;
+  border-radius: 999px;
+}
+.nav .brand {
+  font: 700 15px/1 var(--f-display); letter-spacing: -.01em;
+  display: inline-flex; align-items: center; gap: 8px;
+  white-space: nowrap; flex-shrink: 0;
+}
+.nav .brand .pill-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--equipa); display: inline-block; }
+.nav .links {
+  display: inline-flex; align-items: center; gap: 4px;
+  overflow-x: auto; scrollbar-width: none;
+  min-width: 0;
+}
+.nav a {
+  color: var(--muted); text-decoration: none; font-weight: 600; font-size: 13.5px;
+  padding: 8px 14px; border-radius: 999px; white-space: nowrap; transition: background .2s, color .2s;
+  display: inline-flex; align-items: center;
+}
+.nav a:hover { color: var(--ink); background: rgba(255, 255, 255, .65); }
+.nav a.on { color: #fff; background: var(--ink); }
+
+/* Tipografía */
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; letter-spacing: -.02em; }
+h1 { font-size: clamp(38px, 6vw, 70px); line-height: 1.02; font-weight: 800; }
+h2 { font-size: clamp(26px, 3.5vw, 38px); line-height: 1.1; font-weight: 700; }
+h3 { font-size: 19px; line-height: 1.25; font-weight: 700; letter-spacing: -.01em; }
+p { margin: 0; }
+.lede { font-size: clamp(16.5px, 1.8vw, 19.5px); color: var(--muted); max-width: 65ch; line-height: 1.55; }
+.prose { max-width: 70ch; color: var(--muted); display: grid; gap: 12px; }
+.prose strong, .lede strong { color: var(--ink); font-weight: 600; }
+.eyebrow {
+  font: 600 11.5px/1 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+  display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.tag {
+  font: 700 12px/1 var(--f-mono); color: #fff; background: var(--ink);
+  padding: 6px 10px; border-radius: 999px; letter-spacing: 0;
+}
+.tag.equipa { background: var(--equipa); }
+.tag.equipb { background: var(--equipb); }
+.tag.normal { background: var(--normal); }
+.tag.gamma { background: var(--gamma); }
+.mono { font-family: var(--f-mono); }
+.sub { color: var(--muted); font-size: 13px; }
+
+/* Hero */
+.hero { padding: clamp(26px, 4.5vw, 52px); display: grid; gap: 26px; }
+.hero h1 em {
+  font-style: normal;
+  background: linear-gradient(90deg, var(--equipa), var(--accent) 50%, var(--gamma));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); gap: 12px; }
+.kpi { background: var(--glass-strong); border-radius: var(--r-md); padding: 16px 18px; border: 1px solid var(--glass-edge); }
+.kpi b { display: block; font: 700 30px/1.1 var(--f-display); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.kpi span { color: var(--muted); font-size: 13.5px; line-height: 1.3; display: block; margin-top: 4px; }
+
+/* Simulador Interactivo de Carga de Servidores */
+.race { display: grid; gap: 12px; background: rgba(255, 255, 255, .48); border-radius: var(--r-md); padding: 18px; border: 1px solid var(--glass-edge); }
+.race-head { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; }
+.race-head p { color: var(--muted); font-size: 14px; max-width: 65ch; }
+.lane { display: grid; grid-template-columns: 140px 1fr 100px; align-items: center; gap: 14px; }
+.lane .lbl { font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+.lane .lbl .dot { width: 10px; height: 10px; border-radius: 50%; }
+.track { height: 16px; border-radius: 999px; background: rgba(19, 26, 43, .07); overflow: hidden; position: relative; }
+.track i { display: block; height: 100%; width: 0%; border-radius: inherit; transition: width .6s cubic-bezier(.2,.8,.2,1); }
+.lane .t { text-align: right; font: 600 13px/1 var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* Secciones Generales */
+.section { padding: clamp(22px, 4vw, 44px); display: grid; gap: 26px; }
+.section > * { min-width: 0; }
+.section > header { display: grid; gap: 10px; }
+.block { display: grid; gap: 16px; min-width: 0; }
+.block > * { min-width: 0; }
+.block + .block { border-top: 1px solid var(--line); padding-top: 24px; }
+.grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
+.grid > * { min-width: 0; }
+.grid-2 { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); }
+.grid-2 > * { min-width: 0; }
+
+/* Tarjetas */
+.card {
+  background: var(--glass-strong); border: 1px solid var(--glass-edge); border-radius: var(--r-md);
+  padding: 20px; display: grid; gap: 12px; min-width: 0;
+}
+.card h3 { font-size: 18px; }
+.card p { color: var(--muted); font-size: 14.5px; }
+.card .formula {
+  font: 600 13.5px/1.4 var(--f-mono); color: var(--ink); background: rgba(19, 26, 43, .05);
+  padding: 10px 12px; border-radius: var(--r-sm); border-left: 3px solid var(--ink);
+  overflow-x: auto;
+}
+.card.highlight-a { border-left: 4px solid var(--equipa); }
+.card.highlight-b { border-left: 4px solid var(--equipb); }
+.card.highlight-norm { border-left: 4px solid var(--normal); }
+.card.highlight-gamma { border-left: 4px solid var(--gamma); }
+
+/* Pasos / Steps */
+.steps { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); counter-reset: s; }
+.step {
+  counter-increment: s; background: var(--glass-strong); border-radius: var(--r-sm);
+  padding: 16px; border: 1px solid var(--glass-edge); display: grid; gap: 6px; min-width: 0;
+}
+.step::before {
+  content: "Paso " counter(s); font: 700 11.5px/1 var(--f-mono); letter-spacing: .08em;
+  text-transform: uppercase; color: var(--accent);
+}
+.step b { font-size: 15px; color: var(--ink); }
+.step p { color: var(--muted); font-size: 13.5px; }
+
+/* Controles & Botones */
+.controls { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+.controls.split { justify-content: space-between; align-items: center; }
+.seg {
+  display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: 14px;
+  background: rgba(19, 26, 43, .07); min-width: 0;
+}
+.seg button {
+  border: 0; background: transparent; color: var(--muted); font: 600 13px/1 var(--f-body);
+  padding: 8px 13px; border-radius: 10px; cursor: pointer; transition: background .2s, color .2s, box-shadow .2s;
+  white-space: nowrap;
+}
+.seg button:hover { color: var(--ink); }
+.seg button[aria-pressed="true"] { background: #fff; color: var(--ink); box-shadow: 0 1px 3px rgba(19, 26, 43, .12); }
+.seg button .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+.btn {
+  font: 600 13.5px/1 var(--f-body); color: var(--ink); background-color: #fff;
+  border: 1px solid var(--line); border-radius: 12px; padding: 10px 16px; cursor: pointer;
+  display: inline-flex; gap: 8px; align-items: center; transition: background .2s;
+}
+.btn:hover { background-color: var(--glass-strong); }
+.btn-primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+.btn-primary:hover { background: #232d44; }
+
+/* Tablas */
+.table-wrap { overflow-x: auto; border-radius: var(--r-md); background: var(--glass-strong); border: 1px solid var(--glass-edge); }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+th, td { padding: 10px 14px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--line); }
+th { font: 600 11px/1.3 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--faint); background: rgba(255, 255, 255, .7); }
+th:first-child, td:first-child { text-align: left; }
+tbody tr:last-child td { border-bottom: 0; }
+.cell-ok { color: var(--ok); background: var(--ok-bg); font-weight: 600; }
+.cell-warn { color: var(--warn); background: var(--warn-bg); font-weight: 600; }
+.cell-best { font-weight: 700; color: var(--ink); background: rgba(37, 99, 235, .08); }
+
+/* Gráficas */
+.chart-card {
+  background: var(--glass-strong); border: 1px solid var(--glass-edge); border-radius: var(--r-md);
+  padding: 18px 18px 14px; display: grid; gap: 12px; min-width: 0;
+}
+.chart-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.chart-head h3 { font-size: 16.5px; }
+.chart { position: relative; height: 320px; min-width: 0; }
+
+/* Veredictos */
+.verdict {
+  display: grid; gap: 14px; background: #fff; border-radius: var(--r-md); padding: 22px;
+  border: 1px solid var(--glass-edge); box-shadow: var(--shadow);
+}
+.verdict .pill { justify-self: start; font: 700 12.5px/1.3 var(--f-body); padding: 6px 14px; border-radius: 999px; }
+.pill.ok { color: var(--ok); background: var(--ok-bg); }
+.pill.warn { color: var(--warn); background: var(--warn-bg); }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr)); gap: 10px; }
+.stat { background: rgba(19, 26, 43, .04); border-radius: var(--r-sm); padding: 10px 12px; display: grid; gap: 2px; min-width: 0; }
+.stat span { font: 600 11px/1.3 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--faint); }
+.stat b { font: 600 16.5px/1.3 var(--f-mono); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.verdict p { color: var(--muted); max-width: 90ch; }
+.verdict p strong { color: var(--ink); }
+
+/* Footer */
+footer.section { padding-top: 36px; border-top: 1px solid var(--line); font-size: 14px; color: var(--muted); }
+.footer-authors { display: flex; flex-wrap: wrap; gap: 8px 18px; font-weight: 600; color: var(--ink); }
+
+@media (max-width: 720px) {
+  .nav { border-radius: 20px; padding: 10px 14px; flex-wrap: wrap; gap: 8px; }
+  .nav .brand { width: 100%; }
+  .nav .links { width: 100%; overflow-x: auto; padding-bottom: 2px; }
+  .lane { grid-template-columns: 100px 1fr 80px; gap: 8px; }
+  .chart { height: 260px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="atmos">
+  <span class="a1"></span>
+  <span class="a2"></span>
+  <span class="a3"></span>
+</div>
+
+<div class="wrap">
+
+  <!-- Navegación -->
+  <nav class="nav glass" aria-label="Secciones del Punto 2">
+    <span class="brand"><span class="pill-dot"></span>Punto 2 · Equipos A y B</span>
+    <div class="links">
+      <a href="#contexto">Contexto</a>
+      <a href="#literal-a">a · Descriptiva & χ²</a>
+      <a href="#literal-b">b · Medias (t vs Z)</a>
+      <a href="#literal-c">c · Mann-Whitney U</a>
+      <a href="#conclusiones">d · Veredicto Final</a>
+    </div>
+  </nav>
+
+  <!-- Hero Header -->
+  <header class="hero glass">
+    <div class="eyebrow">
+      <span class="tag">Proyecto de Aula</span>
+      <span>Facultad de Ingenierías · Universidad de Medellín</span>
+      <span class="sub">Estadística para Ingeniería · 2026-2</span>
+    </div>
+
+    <h1>Tiempos de Procesamiento: <em>Equipos A y B</em></h1>
+
+    <p class="lede">
+      Evaluación inferencial y comparativa del rendimiento de dos servidores computacionales (<strong>Equipo A</strong> y <strong>Equipo B</strong>) 
+      a través de <strong>240 mediciones</strong> simuladas bajo dos regímenes operativos: 
+      <strong>tráfico balanceado simétrico (Normal)</strong> y <strong>congestión con colas pesadas (Gamma)</strong>. 
+      Comprobamos la bondad de ajuste, contrastamos medias mediante las distribuciones t-Student y Normal Z, y demostramos con la prueba no paramétrica de Mann-Whitney 
+      cuál servidor ofrece la máxima fiabilidad técnica.
+    </p>
+
+    <!-- KPIs -->
+    <div class="kpis">
+      <div class="kpi">
+        <b>240</b>
+        <span>Mediciones simuladas (n = 60 por grupo)</span>
+      </div>
+      <div class="kpi">
+        <b>2</b>
+        <span>Regímenes operativos (Normal vs. Gamma)</span>
+      </div>
+      <div class="kpi">
+        <b style="color:var(--ok);">4 / 4</b>
+        <span>Modelos validados por bondad de ajuste χ²</span>
+      </div>
+      <div class="kpi">
+        <b style="color:var(--equipa);">4.07×</b>
+        <span>Menor varianza en Equipo A (Escenario 1)</span>
+      </div>
+      <div class="kpi">
+        <b style="color:var(--accent);">P = 0.85</b>
+        <span>Equivalencia en Mann-Whitney (Escenario 2)</span>
+      </div>
+    </div>
+
+    <!-- Simulador Interactivo de Carga de Servidores -->
+    <div class="race">
+      <div class="race-head">
+        <div>
+          <h3 style="margin-bottom:4px;">⚡ Simulador de Carga Concurrente (60 Tareas en Paralelo)</h3>
+          <p id="sim-desc">Observe la velocidad de atención y la estabilidad de latencia de cada servidor en tiempo real.</p>
+        </div>
+        <div class="controls">
+          <div class="seg" role="group" aria-label="Escenario del simulador">
+            <button type="button" id="btn-sim-esc1" aria-pressed="true" onclick="setSimEscenario(1)">
+              <span class="dot" style="background:var(--normal)"></span>Escenario 1 (Normal)
+            </button>
+            <button type="button" id="btn-sim-esc2" aria-pressed="false" onclick="setSimEscenario(2)">
+              <span class="dot" style="background:var(--gamma)"></span>Escenario 2 (Gamma)
+            </button>
+          </div>
+          <button class="btn btn-primary" id="btn-run-sim" type="button" onclick="runSimulation()">
+            ▶ Iniciar Simulación
+          </button>
+        </div>
+      </div>
+
+      <div class="lane">
+        <div class="lbl">
+          <span class="dot" style="background:var(--equipa);"></span>
+          <span>Equipo A</span>
+        </div>
+        <div class="track"><i id="bar-a" style="background:var(--equipa);"></i></div>
+        <div class="t" id="time-a">170.4 ms</div>
+      </div>
+
+      <div class="lane">
+        <div class="lbl">
+          <span class="dot" style="background:var(--equipb);"></span>
+          <span>Equipo B</span>
+        </div>
+        <div class="track"><i id="bar-b" style="background:var(--equipb);"></i></div>
+        <div class="t" id="time-b">173.7 ms</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- SECCIÓN 1: Contexto y Planteamiento -->
+  <section id="contexto" class="section glass">
+    <header>
+      <span class="eyebrow">Marco Experimental · Diseño de Simulación</span>
+      <h2>¿Equipo A o Equipo B? El Problema de Dimensionamiento</h2>
+      <p class="lede">
+        En centros de datos y arquitecturas cliente-servidor, la variable crítica de calidad es el 
+        <strong>tiempo de procesamiento o latencia (Y, en ms)</strong>. Dos servidores con promedios similares 
+        pueden tener comportamientos radicalmente distintos ante fluctuaciones de tráfico.
+      </p>
+    </header>
+
+    <div class="grid-2">
+      <div class="card highlight-norm">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="tag normal">Escenario 1</span>
+          <span class="badge mono">Régimen Gaussiano</span>
+        </div>
+        <h3>Tráfico Balanceado y Estable</h3>
+        <p>
+          Simula un sistema en estado estacionario con múltiples peticiones independientes que se suman aditivamente según el 
+          <strong>Teorema del Límite Central</strong>.
+        </p>
+        <div class="formula">
+          Equipo A: N(μ = 175 ms, σ = 30 ms) &rarr; σ² = 900 ms²<br>
+          Equipo B: N(μ = 170 ms, σ = 50 ms) &rarr; σ² = 2.500 ms²
+        </div>
+        <p style="font-size:13.5px;">
+          <strong>Comportamiento:</strong> Simetría perfecta (coeficiente de asimetría ≈ 0), campana mesocúrtica y coincidencia de media y mediana.
+        </p>
+      </div>
+
+      <div class="card highlight-gamma">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="tag gamma">Escenario 2</span>
+          <span class="badge mono">Régimen de Colas</span>
+        </div>
+        <h3>Congestión, Ráfagas y Colas Pesadas</h3>
+        <p>
+          Simula un entorno con contención de recursos de E/S y tiempos de espera en cola, gobernado por la 
+          <strong>distribución Gamma</strong>.
+        </p>
+        <div class="formula">
+          Equipo A: Gamma(α = 1.2, β = 150) &rarr; μ = 180 ms, σ² = 27.000 ms²<br>
+          Equipo B: Gamma(α = 0.95, β = 190) &rarr; μ = 180.5 ms, σ² = 34.295 ms²
+        </div>
+        <p style="font-size:13.5px;">
+          <strong>Comportamiento:</strong> Fuerte asimetría positiva (γ₁ ≈ 1.7) con colas derechas prolongadas y retardos esporádicos extremos (outliers).
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 2: Literal A (Descriptiva, Histogramas y Bondad de Ajuste) -->
+  <section id="literal-a" class="section glass">
+    <header>
+      <span class="eyebrow">Literal a · 10 % de la Evaluación</span>
+      <h2>Estadística Descriptiva, Histogramas y Bondad de Ajuste (χ²)</h2>
+      <p class="lede">
+        Examinamos la morfología de las 60 observaciones de cada grupo y contrastamos rigurosamente si los datos 
+        cumplen con las distribuciones teóricas postuladas antes de realizar inferencias.
+      </p>
+    </header>
+
+    <!-- Bloque 1: Tabla Descriptiva -->
+    <div class="block">
+      <div class="controls split">
+        <h3>1. Resumen Numérico de las 4 Muestras (Tabla VIII del Informe)</h3>
+        <span class="sub mono">n = 60 réplicas por grupo · 240 datos totales</span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Medida Estadística</th>
+              <th style="color:var(--equipa);">Esc. 1 · Equipo A<br><small>N(175, 30)</small></th>
+              <th style="color:var(--equipb);">Esc. 1 · Equipo B<br><small>N(170, 50)</small></th>
+              <th style="color:var(--accent);">Esc. 2 · Equipo A<br><small>Gamma(1.2, 150)</small></th>
+              <th style="color:var(--gamma);">Esc. 2 · Equipo B<br><small>Gamma(0.95, 190)</small></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Media muestral (X̄)</strong></td>
+              <td class="cell-best">170,43 ms</td>
+              <td>173,69 ms</td>
+              <td>187,58 ms</td>
+              <td>209,31 ms</td>
+            </tr>
+            <tr>
+              <td><strong>Error estándar de la media</strong></td>
+              <td class="cell-best">3,23 ms</td>
+              <td>6,51 ms</td>
+              <td>22,90 ms</td>
+              <td>27,71 ms</td>
+            </tr>
+            <tr>
+              <td><strong>Mediana (Me)</strong></td>
+              <td>172,37 ms</td>
+              <td>164,30 ms</td>
+              <td>151,33 ms</td>
+              <td>142,32 ms</td>
+            </tr>
+            <tr>
+              <td><strong>Desviación estándar (S)</strong></td>
+              <td class="cell-best">25,01 ms</td>
+              <td>50,45 ms</td>
+              <td>177,36 ms</td>
+              <td>214,68 ms</td>
+            </tr>
+            <tr>
+              <td><strong>Varianza muestral (S²)</strong></td>
+              <td class="cell-best">625,42 ms²</td>
+              <td>2.545,48 ms²</td>
+              <td>31.455,16 ms²</td>
+              <td>46.086,04 ms²</td>
+            </tr>
+            <tr>
+              <td><strong>Coeficiente de asimetría</strong></td>
+              <td>-0,0069 <small>(Simétrico)</small></td>
+              <td>+0,4461</td>
+              <td class="cell-warn">+1,6885 <small>(Sesgo derecho)</small></td>
+              <td class="cell-warn">+1,7302 <small>(Sesgo derecho)</small></td>
+            </tr>
+            <tr>
+              <td><strong>Curtosis muestral</strong></td>
+              <td>-0,1191 <small>(Mesocúrtica)</small></td>
+              <td>+0,3172</td>
+              <td class="cell-warn">+2,9688 <small>(Leptocúrtica)</small></td>
+              <td class="cell-warn">+2,8987 <small>(Leptocúrtica)</small></td>
+            </tr>
+            <tr>
+              <td><strong>Rango intermuestral</strong></td>
+              <td class="cell-best">117,94 ms</td>
+              <td>245,45 ms</td>
+              <td>821,99 ms</td>
+              <td>959,21 ms</td>
+            </tr>
+            <tr>
+              <td><strong>Intervalo [Mín — Máx]</strong></td>
+              <td>[116,76 — 234,70]</td>
+              <td>[72,51 — 317,95]</td>
+              <td>[2,54 — 824,53]</td>
+              <td>[1,46 — 960,66]</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Bloque 2: Gráficos de Histogramas y Curvas Teóricas -->
+    <div class="block">
+      <div class="chart-card">
+        <div class="chart-head">
+          <div>
+            <h3>2. Visualización Morfológica: Histograma vs. Densidad Teórica</h3>
+            <span class="sub" id="chart-sub">Histograma con 8 bins y curva de densidad continua superpuesta</span>
+          </div>
+          <div class="seg" role="group" aria-label="Seleccionar grupo para graficar">
+            <button type="button" id="btn-g-esc1a" aria-pressed="true" onclick="updateHistogramView('esc1_a')">
+              <span class="dot" style="background:var(--equipa)"></span>Esc1 · Equipo A
+            </button>
+            <button type="button" id="btn-g-esc1b" aria-pressed="false" onclick="updateHistogramView('esc1_b')">
+              <span class="dot" style="background:var(--equipb)"></span>Esc1 · Equipo B
+            </button>
+            <button type="button" id="btn-g-esc2a" aria-pressed="false" onclick="updateHistogramView('esc2_a')">
+              <span class="dot" style="background:var(--accent)"></span>Esc2 · Equipo A
+            </button>
+            <button type="button" id="btn-g-esc2b" aria-pressed="false" onclick="updateHistogramView('esc2_b')">
+              <span class="dot" style="background:var(--gamma)"></span>Esc2 · Equipo B
+            </button>
+          </div>
+        </div>
+
+        <div class="chart">
+          <canvas id="canvas-histogram"></canvas>
+        </div>
+
+        <div class="controls split">
+          <div style="display:flex; gap:16px; font-size:13px;" id="hist-legend-extra">
+            <span>🔵 Línea discontinua: <strong>Media muestral (X̄)</strong></span>
+            <span>🔴 Línea punteada: <strong>Mediana muestral (Me)</strong></span>
+            <span>⬛ Curva negra: <strong>Densidad teórica f(y)</strong></span>
+          </div>
+          <span class="sub mono" id="hist-stat-badge">Asimetría: -0.007 · Curtosis: -0.119</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bloque 3: Bondad de Ajuste Chi-Cuadrado -->
+    <div class="block">
+      <div class="controls split">
+        <div>
+          <h3>3. Pruebas de Bondad de Ajuste Chi-Cuadrado (χ²)</h3>
+          <span class="sub">H₀: La muestra proviene de la distribución teórica especificada (α = 0,05)</span>
+        </div>
+        <span class="tag" style="background:var(--ok);">Todos P &gt; 0,05 &rarr; Cumplen</span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Grupo Evaluado</th>
+              <th>Distribución Contrastada</th>
+              <th>Estadístico χ²_calc</th>
+              <th>Grados de Libertad (ν)</th>
+              <th>Valor Crítico (χ²_0.95; 7)</th>
+              <th>Valor P</th>
+              <th>Decisión (α = 0,05)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Escenario 1 · Equipo A</strong></td>
+              <td>Normal(μ=175, σ=30)</td>
+              <td class="mono">5,2860</td>
+              <td class="mono">7</td>
+              <td class="mono">14,0671</td>
+              <td class="mono cell-ok">0,6251</td>
+              <td class="cell-ok">No se rechaza H₀ (Ajuste Normal)</td>
+            </tr>
+            <tr>
+              <td><strong>Escenario 1 · Equipo B</strong></td>
+              <td>Normal(μ=170, σ=50)</td>
+              <td class="mono">5,8016</td>
+              <td class="mono">7</td>
+              <td class="mono">14,0671</td>
+              <td class="mono cell-ok">0,5631</td>
+              <td class="cell-ok">No se rechaza H₀ (Ajuste Normal)</td>
+            </tr>
+            <tr>
+              <td><strong>Escenario 2 · Equipo A</strong></td>
+              <td>Gamma(α=1.2, β=150)</td>
+              <td class="mono">4,7267</td>
+              <td class="mono">7</td>
+              <td class="mono">14,0671</td>
+              <td class="mono cell-ok">0,6933</td>
+              <td class="cell-ok">No se rechaza H₀ (Ajuste Gamma)</td>
+            </tr>
+            <tr>
+              <td><strong>Escenario 2 · Equipo B</strong></td>
+              <td>Gamma(α=0.95, β=190)</td>
+              <td class="mono">8,7574</td>
+              <td class="mono">7</td>
+              <td class="mono">14,0671</td>
+              <td class="mono cell-ok">0,2705</td>
+              <td class="cell-ok">No se rechaza H₀ (Ajuste Gamma)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Explicador interactivo de Bins de Chi-cuadrado -->
+      <div class="card">
+        <div class="controls split">
+          <span style="font-weight:700; font-size:14.5px;">🔍 Explorador de Bins de Chi-Cuadrado (Discretización k = 8 intervalos)</span>
+          <div class="seg" role="group">
+            <button type="button" id="btn-bin-e1a" aria-pressed="true" onclick="renderBinTable('esc1_a')">Esc1 A</button>
+            <button type="button" id="btn-bin-e1b" aria-pressed="false" onclick="renderBinTable('esc1_b')">Esc1 B</button>
+            <button type="button" id="btn-bin-e2a" aria-pressed="false" onclick="renderBinTable('esc2_a')">Esc2 A</button>
+            <button type="button" id="btn-bin-e2b" aria-pressed="false" onclick="renderBinTable('esc2_b')">Esc2 B</button>
+          </div>
+        </div>
+        <div class="table-wrap" id="bin-table-container"></div>
+        <div class="formula" style="font-size:12.5px;">
+          χ²_calc = ∑ [(O_i - E_i)² / E_i] &nbsp;|&nbsp; Grados de libertad: ν = k - 1 - m = 8 - 1 - 0 = 7 (m = 0 porque los parámetros son conocidos a priori).
+        </div>
+      </div>
+    </div>
+
+    <!-- Veredicto del Literal A -->
+    <div class="verdict">
+      <span class="pill ok">✓ Veredicto del Literal A: Modelos Distribucionales Validados</span>
+      <p>
+        <strong>1. En el Escenario 1 (Normal):</strong> Se valida la hipótesis de normalidad con holgura extraordinaria (P = 0,6251 y P = 0,5631 &gt; 0,05). 
+        Desde el punto de vista del control de calidad, el <strong>Equipo A es contundentemente más estable</strong>: tiene la mitad de desviación estándar (25,01 ms vs 50,45 ms) 
+        y una varianza 4 veces menor (625 ms² vs 2.545 ms²).
+      </p>
+      <p>
+        <strong>2. En el Escenario 2 (Gamma):</strong> Se ratifica el ajuste al modelo Gamma (P = 0,6933 y P = 0,2705). 
+        Esto demuestra que los tiempos atípicos de hasta 960 ms <em>no son fallas de hardware ni errores de medición</em>, sino la respuesta estocástica propia de sistemas de colas pesadas.
+      </p>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 3: Literal B (Comparación Paramétrica de Medias: t-Student vs Normal Z) -->
+  <section id="literal-b" class="section glass">
+    <header>
+      <span class="eyebrow">Literal b · 10 % de la Evaluación</span>
+      <h2>Comparación de Medias: Distribución t-Student frente a Normal Z</h2>
+      <p class="lede">
+        Contrastamos formalmente si existe una diferencia estadísticamente significativa entre las medias de procesamiento de ambos equipos:
+        <strong>H₀: μ_A - μ_B = 0</strong> frente a <strong>H₁: μ_A - μ_B &ne; 0</strong> al nivel de significancia &alpha; = 0,05.
+      </p>
+    </header>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>Prueba t de Welch (Varianzas Desiguales)</h3>
+        <p>No asume varianzas iguales ni conocidas. Estima las varianzas muestrales S_A² y S_B² y aproxima los grados de libertad con la fórmula de Satterthwaite.</p>
+        <div class="formula">
+          t_calc = (X̄_A - X̄_B) / &radic;(S_A²/n_A + S_B²/n_B) ~ t(ν)<br>
+          gl_Esc1 = 86 &nbsp;|&nbsp; gl_Esc2 = 114
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Prueba Normal Z (Varianzas Conocidas)</h3>
+        <p>Aprovecha las varianzas poblacionales teóricas prefijadas en la formulación de los escenarios de simulación.</p>
+        <div class="formula">
+          Z_calc = (X̄_A - X̄_B) / &radic;(&sigma;_A²/n_A + &sigma;_B²/n_B) ~ N(0, 1)<br>
+          Z_crit = &plusmn; 1,9600 (bilateral, &alpha; = 0,05)
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla X: Resultados Numéricos -->
+    <div class="block">
+      <div class="controls split">
+        <h3>Resultados de las Pruebas de Comparación de Medias (Tabla X del Informe)</h3>
+        <span class="sub mono">&alpha; = 0,05 bilateral</span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Escenario Operativo</th>
+              <th>Método Inferencial</th>
+              <th>Diferencia Muestral (X̄_A - X̄_B)</th>
+              <th>Grados Libertad (ν)</th>
+              <th>Estadístico Calculado</th>
+              <th>Valor Crítico (&plusmn;)</th>
+              <th>Valor P Bilateral</th>
+              <th>Decisión Estadística</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td rowspan="2"><strong>Escenario 1 (Normal)</strong></td>
+              <td>t-Student (Welch, S² desiguales)</td>
+              <td class="mono">-3,26 ms</td>
+              <td class="mono">86</td>
+              <td class="mono">t = -0,4486</td>
+              <td class="mono">&plusmn; 1,9879</td>
+              <td class="mono cell-ok">0,6548</td>
+              <td class="cell-ok">No se rechaza H₀</td>
+            </tr>
+            <tr>
+              <td>Normal Z (σ² conocidas teóricas)</td>
+              <td class="mono">-3,26 ms</td>
+              <td class="mono">N/A</td>
+              <td class="mono">z = -0,4333</td>
+              <td class="mono">&plusmn; 1,9600</td>
+              <td class="mono cell-ok">0,6648</td>
+              <td class="cell-ok">No se rechaza H₀</td>
+            </tr>
+            <tr>
+              <td rowspan="2"><strong>Escenario 2 (Gamma)</strong></td>
+              <td>t-Student (Welch, S² desiguales)</td>
+              <td class="mono">-21,73 ms</td>
+              <td class="mono">114</td>
+              <td class="mono">t = -0,6045</td>
+              <td class="mono">&plusmn; 1,9810</td>
+              <td class="mono cell-ok">0,5467</td>
+              <td class="cell-ok">No se rechaza H₀</td>
+            </tr>
+            <tr>
+              <td>Normal Z (σ² conocidas teóricas)</td>
+              <td class="mono">-21,73 ms</td>
+              <td class="mono">N/A</td>
+              <td class="mono">z = -0,6799</td>
+              <td class="mono">&plusmn; 1,9600</td>
+              <td class="mono cell-ok">0,4966</td>
+              <td class="cell-ok">No se rechaza H₀</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Gráfico Interactivo de la Distribución de Prueba -->
+    <div class="block">
+      <div class="chart-card">
+        <div class="chart-head">
+          <div>
+            <h3>Distribución del Estadístico de Contraste y Zonas de Aceptación / Rechazo</h3>
+            <span class="sub" id="chart-hyp-sub">Escenario 1: Normal Z vs. t de Student (gl = 86)</span>
+          </div>
+          <div class="seg" role="group">
+            <button type="button" id="btn-hyp-esc1" aria-pressed="true" onclick="updateHypothesisChart(1)">
+              Escenario 1 (t = -0.45, z = -0.43)
+            </button>
+            <button type="button" id="btn-hyp-esc2" aria-pressed="false" onclick="updateHypothesisChart(2)">
+              Escenario 2 (t = -0.60, z = -0.68)
+            </button>
+          </div>
+        </div>
+
+        <div class="chart">
+          <canvas id="canvas-hypothesis"></canvas>
+        </div>
+
+        <div class="note">
+          <strong>Principio de Convergencia Asintótica:</strong> Como las muestras son moderadamente grandes (n = 60), 
+          los grados de libertad de Welch son muy altos (gl = 86 y gl = 114). Por el Teorema del Límite Central, la distribución t 
+          converge a la Normal estándar: el cuantil crítico de t (&plusmn;1,98) es prácticamente idéntico al de Z (&plusmn;1,96).
+        </div>
+      </div>
+    </div>
+
+    <!-- Veredicto del Literal B -->
+    <div class="verdict">
+      <span class="pill ok">✓ Veredicto del Literal B: No hay diferencia significativa en medias</span>
+      <p>
+        <strong>1. Decisión Unánime:</strong> En ambos escenarios, los p-valores superan ampliamente a 0,05 (entre 0,49 y 0,66). 
+        La ligera diferencia de medias de -3,26 ms en el Escenario 1 y de -21,73 ms en el Escenario 2 es atribuible exclusivamente al azar del muestreo.
+      </p>
+      <p>
+        <strong>2. Advertencia Metodológica:</strong> En el Escenario 2, aunque la prueba paramétrica Z arroja z = -0,6799 (p = 0,4966), 
+        dicho estadístico está arrastrado artificialmente por los picos extremos de 960 ms en el Equipo B. Esto motiva la necesidad 
+        de realizar una prueba no paramétrica libre de la influencia de outliers.
+      </p>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 4: Literal C (Inferencia No Paramétrica: Mann-Whitney) -->
+  <section id="literal-c" class="section glass">
+    <header>
+      <span class="eyebrow">Literal c · 10 % de la Evaluación</span>
+      <h2>Inferencia No Paramétrica: Prueba U de Mann-Whitney (Wilcoxon Rango-Suma)</h2>
+      <p class="lede">
+        La prueba U de Mann-Whitney es el estándar de oro cuando los datos no son normales o tienen colas pesadas. 
+        Evalúa si ambas poblaciones tienen la misma mediana y distribución ordinal (<strong>H₀: Me_A = Me_B</strong>) 
+        sin verse afectada por valores extremos.
+      </p>
+    </header>
+
+    <!-- Pasos de la prueba -->
+    <div class="block">
+      <h3>¿Cómo funciona la prueba de Mann-Whitney? Mecanismo en 5 pasos</h3>
+      <div class="steps">
+        <div class="step">
+          <b>Unificar Muestras</b>
+          <p>Se reúnen los 60 datos de A y los 60 datos de B en una sola lista combinada de N = 120 datos.</p>
+        </div>
+        <div class="step">
+          <b>Asignar Rangos</b>
+          <p>Se ordenan de menor a mayor y se les asignan puestos del 1 al 120 (promediando empates con JERARQUIA.MEDIA).</p>
+        </div>
+        <div class="step">
+          <b>Sumar Rangos</b>
+          <p>Se suman los rangos de cada equipo: R₁ para A y R₂ para B. Control: R₁ + R₂ = [120 · 121]/2 = 7.260.</p>
+        </div>
+        <div class="step">
+          <b>Calcular U</b>
+          <p>U₁ = n₁n₂ + [n₁(n₁+1)]/2 - R₁.<br>U₂ = n₁n₂ + [n₂(n₂+1)]/2 - R₂.<br>U = min(U₁, U₂).</p>
+        </div>
+        <div class="step">
+          <b>Tipificar a Z</b>
+          <p>μ_U = 1.800, σ_U = 190,53.<br>Z_calc = (U - μ_U) / σ_U.<br>Valor P = 2 · [1 - Φ(|Z|)].</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla XI: Resultados de Mann-Whitney -->
+    <div class="block">
+      <div class="controls split">
+        <h3>Resultados Obtenidos en Excel (Tabla XI del Informe)</h3>
+        <span class="sub mono">N = 120 observaciones agrupadas · &alpha; = 0,05</span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Parámetro / Estadístico de Prueba</th>
+              <th>Resultados Escenario 1 (Normal)</th>
+              <th>Resultados Escenario 2 (Gamma)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Tamaños muestrales (n₁, n₂)</strong></td>
+              <td class="mono">n₁ = 60 &nbsp;;&nbsp; n₂ = 60 (N = 120)</td>
+              <td class="mono">n₁ = 60 &nbsp;;&nbsp; n₂ = 60 (N = 120)</td>
+            </tr>
+            <tr>
+              <td><strong>Suma de rangos Equipo A (R₁)</strong></td>
+              <td class="mono cell-best">3.672</td>
+              <td class="mono">3.595</td>
+            </tr>
+            <tr>
+              <td><strong>Suma de rangos Equipo B (R₂)</strong></td>
+              <td class="mono">3.588</td>
+              <td class="mono cell-best">3.665</td>
+            </tr>
+            <tr>
+              <td><strong>Control de balance aritmético (R₁ + R₂)</strong></td>
+              <td class="mono">7.260 (Exacto)</td>
+              <td class="mono">7.260 (Exacto)</td>
+            </tr>
+            <tr>
+              <td><strong>Estadísticos parciales (U₁, U₂)</strong></td>
+              <td class="mono">U₁ = 1.758 &nbsp;;&nbsp; U₂ = 1.842</td>
+              <td class="mono">U₁ = 1.835 &nbsp;;&nbsp; U₂ = 1.765</td>
+            </tr>
+            <tr>
+              <td><strong>Estadístico U de Mann-Whitney (mínimo)</strong></td>
+              <td class="mono font-bold">1.758</td>
+              <td class="mono font-bold">1.765</td>
+            </tr>
+            <tr>
+              <td><strong>Media teórica bajo H₀ (μ_U)</strong></td>
+              <td class="mono">1.800</td>
+              <td class="mono">1.800</td>
+            </tr>
+            <tr>
+              <td><strong>Desviación estándar de U (σ_U)</strong></td>
+              <td class="mono">190,5256</td>
+              <td class="mono">190,5256</td>
+            </tr>
+            <tr>
+              <td><strong>Estadístico estandarizado Z_calc</strong></td>
+              <td class="mono cell-ok">-0,2204</td>
+              <td class="mono cell-ok">-0,1837</td>
+            </tr>
+            <tr>
+              <td><strong>Valor P bilateral (dos colas)</strong></td>
+              <td class="mono cell-ok">0,8255</td>
+              <td class="mono cell-ok">0,8542</td>
+            </tr>
+            <tr>
+              <td><strong>Decisión estadística (α = 0,05)</strong></td>
+              <td class="cell-ok">No se rechaza H₀ (Medianas iguales)</td>
+              <td class="cell-ok">No se rechaza H₀ (Medianas iguales)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Comparativa Crítica: ¿Por qué Mann-Whitney es superior en Gamma? -->
+    <div class="block">
+      <div class="card">
+        <h3>Comparación Crítica: ¿Paramétrico (Literal B) o No Paramétrico (Literal C)?</h3>
+        <div class="grid-2" style="margin-top:10px;">
+          <div style="background:rgba(255,255,255,.6); padding:16px; border-radius:var(--r-sm);">
+            <span class="tag normal" style="margin-bottom:8px; display:inline-block;">En el Escenario 1 (Normal)</span>
+            <p style="font-size:14px;">
+              Los datos son simétricos y sin anomalías. Las pruebas <strong>t-Student y Z del Literal B son las más potentes</strong> 
+              porque utilizan la distancia métrica real de cada número, con una eficiencia relativa asintótica del 95%.
+            </p>
+          </div>
+          <div style="background:rgba(255,255,255,.6); padding:16px; border-radius:var(--r-sm); border-left:3px solid var(--gamma);">
+            <span class="tag gamma" style="margin-bottom:8px; display:inline-block;">En el Escenario 2 (Gamma)</span>
+            <p style="font-size:14px;">
+              Los picos extremos de 960 ms distorsionaron la prueba Z haciéndola marcar <strong>z = -0,68</strong> (P = 0,496). 
+              En cambio, <strong>Mann-Whitney modera esa anomalía</strong>: asigna rangos acotados (1 a 120), equilibrando los grupos en 
+              <strong>Z = -0,1837</strong> (P = 0,8542). <em>Mann-Whitney es metodológicamente superior en colas pesadas.</em>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Veredicto del Literal C -->
+    <div class="verdict">
+      <span class="pill ok">✓ Veredicto del Literal C: Desempeño Mediano Idéntico</span>
+      <p>
+        Tanto en el Escenario 1 (P = 0,8255) como en el Escenario 2 (P = 0,8542), la prueba no paramétrica de Mann-Whitney confirma 
+        que <strong>no existe diferencia estadísticamente significativa en las medianas de los tiempos de respuesta</strong>. 
+        Ambos servidores ofrecen una velocidad base equivalente.
+      </p>
+    </div>
+  </section>
+
+  <!-- SECCIÓN 5: Conclusiones y Recomendaciones de Ingeniería -->
+  <section id="conclusiones" class="section glass">
+    <header>
+      <span class="eyebrow">Decisión de Ingeniería · Síntesis Final</span>
+      <h2>Veredicto Final: ¿Qué Servidor Seleccionar?</h2>
+      <p class="lede">
+        La estadística no es solo calcular p-valores, sino tomar decisiones de ingeniería informadas. 
+        A continuación sintetizamos la recomendación para cada escenario.
+      </p>
+    </header>
+
+    <div class="grid-2">
+      <div class="card highlight-a" style="background:#fff;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="tag equipa">Recomendación Escenario 1</span>
+          <span class="pill ok" style="font-size:12px; padding:4px 10px;">Elección Clara</span>
+        </div>
+        <h3 style="font-size:22px; color:var(--equipa);">Elegir Decididamente el EQUIPO A</h3>
+        <p>
+          Aunque ambos tienen la misma velocidad media (~170-173 ms), el <strong>Equipo A ofrece 4 veces menor varianza</strong> 
+          (625 ms² frente a 2.545 ms²) y la mitad de la desviación estándar (25 ms frente a 50 ms).
+        </p>
+        <div class="formula" style="border-color:var(--equipa);">
+          S_A² = 625,42 ms² &nbsp; vs &nbsp; S_B² = 2.545,48 ms² &rarr; Reducción del 75,4% en dispersión
+        </div>
+        <p style="font-size:13.5px;">
+          <strong>Impacto en Ingeniería:</strong> Garantiza estabilidad operativa, latencias predecibles, mínimo jitter 
+          y estricto cumplimiento de Acuerdos de Nivel de Servicio (SLA) sin cuellos de botella.
+        </p>
+      </div>
+
+      <div class="card highlight-gamma" style="background:#fff;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="tag gamma">Recomendación Escenario 2</span>
+          <span class="pill warn" style="font-size:12px; padding:4px 10px;">Intervención Software</span>
+        </div>
+        <h3 style="font-size:22px; color:var(--gamma);">Desempeño Equivalente en Hardware</h3>
+        <p>
+          En sistemas con colas pesadas, ambos equipos rinden de forma indistinguible (P = 0,85 en Mann-Whitney). 
+          Los picos de retardo son causados por la distribución estocástica de la cola y no por fallas del servidor.
+        </p>
+        <div class="formula" style="border-color:var(--gamma);">
+          Solución: No cambiar el hardware, sino optimizar la arquitectura de software
+        </div>
+        <ul class="clean" style="font-size:13.5px;">
+          <li><strong>1. Timeouts agresivos:</strong> Con reintentos basados en retroceso exponencial (exponential backoff).</li>
+          <li><strong>2. Colas prioritarias:</strong> Evitar el bloqueo de cabeza de línea (head-of-line blocking).</li>
+          <li><strong>3. Balanceo elástico:</strong> Desacoplar transacciones críticas de tareas pesadas en background.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="section glass">
+    <div class="controls split">
+      <div>
+        <h3 style="font-size:18px;">Proyecto de Aula de Estadística para Ingeniería</h3>
+        <p class="sub">Facultad de Ingenierías · Universidad de Medellín · 2026-2</p>
+      </div>
+      <div class="footer-authors">
+        <span>Diego Sanabria</span>
+        <span>·</span>
+        <span>Alejandro Bermúdez</span>
+        <span>·</span>
+        <span>Manuela Hincapié</span>
+        <span>·</span>
+        <span>Sebastián Valencia</span>
+      </div>
+    </div>
+    <div style="border-top:1px solid var(--line); padding-top:14px; font-size:12.5px; color:var(--faint); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+      <span>Referencias: [1] Montgomery (2020), [2] Walpole (2012), [6] Welch (1947), [8] Mann & Whitney (1947), [10] Kleinrock (1975).</span>
+    </div>
+  </footer>
+
+</div>
+
+<!-- Datos embebidos en JSON para reproducibilidad e interactividad -->
+<script id="datos-punto2" type="application/json">
+{
+  "esc1_a": [
+    116.7628,
+    143.9784,
+    164.5633,
+    164.3844,
+    177.8337,
+    139.7106,
+    190.296,
+    137.0558,
+    190.1198,
+    179.5197,
+    208.0124,
+    182.2645,
+    154.8337,
+    129.0957,
+    185.0657,
+    181.3529,
+    155.6525,
+    172.6983,
+    179.5228,
+    152.1074,
+    186.8163,
+    193.6446,
+    205.6445,
+    152.3735,
+    148.4942,
+    165.5367,
+    187.5887,
+    217.5968,
+    183.3664,
+    147.3232,
+    191.7097,
+    160.7506,
+    176.1622,
+    189.8548,
+    169.0194,
+    125.1189,
+    212.387,
+    180.2228,
+    165.8124,
+    155.0102,
+    234.6985,
+    136.4888,
+    166.5377,
+    174.2149,
+    150.8892,
+    194.9518,
+    158.6111,
+    184.0658,
+    181.3289,
+    196.4669,
+    168.9005,
+    172.9893,
+    135.8465,
+    155.0898,
+    168.0331,
+    190.123,
+    136.1543,
+    119.3386,
+    209.5016,
+    172.048
+  ],
+  "esc1_b": [
+    86.1974,
+    150.8459,
+    274.0172,
+    157.939,
+    88.4024,
+    214.8196,
+    232.0192,
+    184.1639,
+    257.228,
+    99.0638,
+    144.8815,
+    144.6877,
+    178.8503,
+    143.1797,
+    183.6369,
+    160.1593,
+    317.9508,
+    117.0651,
+    205.5955,
+    195.6046,
+    152.0557,
+    132.3251,
+    72.5055,
+    117.6773,
+    156.9695,
+    190.0733,
+    194.5303,
+    236.7451,
+    178.5926,
+    150.8226,
+    108.4967,
+    208.4176,
+    162.9421,
+    172.1163,
+    164.9909,
+    149.252,
+    89.5226,
+    170.1464,
+    163.3503,
+    229.279,
+    164.0618,
+    163.0618,
+    161.1242,
+    232.1395,
+    174.4272,
+    258.3916,
+    110.2752,
+    132.8859,
+    147.9458,
+    182.08,
+    244.1605,
+    150.3086,
+    276.3823,
+    134.7891,
+    216.2779,
+    182.1553,
+    164.5388,
+    160.2016,
+    203.9569,
+    224.9425
+  ],
+  "esc2_a": [
+    482.9912,
+    141.0675,
+    59.0049,
+    92.7239,
+    84.854,
+    161.602,
+    169.7997,
+    177.223,
+    166.0923,
+    55.1324,
+    118.7853,
+    46.7869,
+    324.9266,
+    441.8142,
+    169.4061,
+    112.3055,
+    162.438,
+    2.5443,
+    412.4987,
+    559.3842,
+    824.5332,
+    36.6372,
+    561.5231,
+    102.2514,
+    183.1173,
+    334.8483,
+    179.9796,
+    281.1009,
+    13.811,
+    266.539,
+    343.633,
+    36.3737,
+    71.4901,
+    136.5549,
+    27.8405,
+    186.7359,
+    89.0977,
+    139.8678,
+    24.3194,
+    84.198,
+    36.7252,
+    302.8039,
+    55.4685,
+    175.472,
+    47.9263,
+    163.7386,
+    5.8226,
+    25.0828,
+    453.0972,
+    207.8042,
+    266.2134,
+    234.0801,
+    79.6501,
+    74.8145,
+    732.1278,
+    165.1216,
+    209.5064,
+    9.5055,
+    76.9108,
+    66.876
+  ],
+  "esc2_b": [
+    115.3331,
+    1.4558,
+    354.3077,
+    150.3754,
+    46.7639,
+    512.5743,
+    65.3371,
+    351.1075,
+    651.7165,
+    138.4508,
+    163.7199,
+    152.4378,
+    544.1529,
+    118.9222,
+    192.5207,
+    128.7782,
+    41.1463,
+    390.697,
+    207.9892,
+    140.0634,
+    30.1348,
+    659.7367,
+    193.826,
+    34.9291,
+    258.2786,
+    10.6277,
+    192.431,
+    884.5272,
+    46.5613,
+    32.9695,
+    240.8108,
+    346.8327,
+    370.7525,
+    165.5589,
+    144.5776,
+    277.5796,
+    248.3099,
+    133.4152,
+    40.4655,
+    10.8222,
+    72.9721,
+    97.6286,
+    115.0319,
+    583.4872,
+    61.9975,
+    960.6621,
+    224.2888,
+    80.7888,
+    10.7444,
+    564.6006,
+    231.3565,
+    28.1636,
+    54.5429,
+    35.613,
+    78.6919,
+    135.8167,
+    191.2421,
+    8.2317,
+    31.2812,
+    200.2621
+  ],
+  "bondad": {
+    "esc1_a": {
+      "bins": [
+        {
+          "bin": "116.76",
+          "fo": 1,
+          "pi": 0.0261,
+          "fe": 1.5669,
+          "chi": 0.2051
+        },
+        {
+          "bin": "133.61",
+          "fo": 3,
+          "pi": 0.0577,
+          "fe": 3.464,
+          "chi": 0.0622
+        },
+        {
+          "bin": "150.46",
+          "fo": 8,
+          "pi": 0.1228,
+          "fe": 7.3691,
+          "chi": 0.054
+        },
+        {
+          "bin": "167.31",
+          "fo": 14,
+          "pi": 0.1921,
+          "fe": 11.5283,
+          "chi": 0.53
+        },
+        {
+          "bin": "184.15",
+          "fo": 17,
+          "pi": 0.2211,
+          "fe": 13.2643,
+          "chi": 1.0521
+        },
+        {
+          "bin": "201.0",
+          "fo": 11,
+          "pi": 0.1871,
+          "fe": 11.2251,
+          "chi": 0.0045
+        },
+        {
+          "bin": "217.85",
+          "fo": 5,
+          "pi": 0.1164,
+          "fe": 6.9866,
+          "chi": 0.5649
+        },
+        {
+          "bin": "More",
+          "fo": 1,
+          "pi": 0.0766,
+          "fe": 4.5957,
+          "chi": 2.8133
+        }
+      ],
+      "chi2": 5.286,
+      "p_value": 0.6251,
+      "gl": 7,
+      "critico": 14.0671
+    },
+    "esc1_b": {
+      "bins": [
+        {
+          "bin": "72.51",
+          "fo": 1,
+          "pi": 0.0256,
+          "fe": 1.5357,
+          "chi": 0.1869
+        },
+        {
+          "bin": "107.57",
+          "fo": 4,
+          "pi": 0.0803,
+          "fe": 4.8185,
+          "chi": 0.139
+        },
+        {
+          "bin": "142.63",
+          "fo": 7,
+          "pi": 0.1862,
+          "fe": 11.1701,
+          "chi": 1.5568
+        },
+        {
+          "bin": "177.7",
+          "fo": 23,
+          "pi": 0.2691,
+          "fe": 16.1457,
+          "chi": 2.9098
+        },
+        {
+          "bin": "212.76",
+          "fo": 12,
+          "pi": 0.2426,
+          "fe": 14.5568,
+          "chi": 0.4491
+        },
+        {
+          "bin": "247.82",
+          "fo": 8,
+          "pi": 0.1364,
+          "fe": 8.1853,
+          "chi": 0.0042
+        },
+        {
+          "bin": "282.89",
+          "fo": 4,
+          "pi": 0.0478,
+          "fe": 2.869,
+          "chi": 0.4458
+        },
+        {
+          "bin": "More",
+          "fo": 1,
+          "pi": 0.012,
+          "fe": 0.7189,
+          "chi": 0.11
+        }
+      ],
+      "chi2": 5.8016,
+      "p_value": 0.5631,
+      "gl": 7,
+      "critico": 14.0671
+    },
+    "esc2_a": {
+      "bins": [
+        {
+          "bin": "2.54",
+          "fo": 1,
+          "pi": 0.0067,
+          "fe": 0.4049,
+          "chi": 0.8744
+        },
+        {
+          "bin": "119.97",
+          "fo": 26,
+          "pi": 0.4533,
+          "fe": 27.2009,
+          "chi": 0.053
+        },
+        {
+          "bin": "237.4",
+          "fo": 18,
+          "pi": 0.272,
+          "fe": 16.3194,
+          "chi": 0.1731
+        },
+        {
+          "bin": "354.83",
+          "fo": 7,
+          "pi": 0.1383,
+          "fe": 8.2979,
+          "chi": 0.203
+        },
+        {
+          "bin": "472.25",
+          "fo": 3,
+          "pi": 0.0677,
+          "fe": 4.0632,
+          "chi": 0.2782
+        },
+        {
+          "bin": "589.68",
+          "fo": 3,
+          "pi": 0.0326,
+          "fe": 1.9545,
+          "chi": 0.5592
+        },
+        {
+          "bin": "707.11",
+          "fo": 0,
+          "pi": 0.0155,
+          "fe": 0.9304,
+          "chi": 0.9304
+        },
+        {
+          "bin": "More",
+          "fo": 2,
+          "pi": 0.0138,
+          "fe": 0.8287,
+          "chi": 1.6554
+        }
+      ],
+      "chi2": 4.7267,
+      "p_value": 0.6933,
+      "gl": 7,
+      "critico": 14.0671
+    },
+    "esc2_b": {
+      "bins": [
+        {
+          "bin": "1.46",
+          "fo": 1,
+          "pi": 0.0099,
+          "fe": 0.5963,
+          "chi": 0.2732
+        },
+        {
+          "bin": "138.49",
+          "fo": 28,
+          "pi": 0.5318,
+          "fe": 31.9107,
+          "chi": 0.4793
+        },
+        {
+          "bin": "275.51",
+          "fo": 17,
+          "pi": 0.24,
+          "fe": 14.4024,
+          "chi": 0.4685
+        },
+        {
+          "bin": "412.54",
+          "fo": 6,
+          "pi": 0.1136,
+          "fe": 6.8163,
+          "chi": 0.0978
+        },
+        {
+          "bin": "549.57",
+          "fo": 2,
+          "pi": 0.0543,
+          "fe": 3.2571,
+          "chi": 0.4852
+        },
+        {
+          "bin": "686.6",
+          "fo": 4,
+          "pi": 0.0261,
+          "fe": 1.5633,
+          "chi": 3.7979
+        },
+        {
+          "bin": "823.63",
+          "fo": 0,
+          "pi": 0.0125,
+          "fe": 0.7523,
+          "chi": 0.7523
+        },
+        {
+          "bin": "More",
+          "fo": 2,
+          "pi": 0.0117,
+          "fe": 0.7015,
+          "chi": 2.4032
+        }
+      ],
+      "chi2": 8.7574,
+      "p_value": 0.2705,
+      "gl": 7,
+      "critico": 14.0671
+    }
+  }
+}
+</script>
+
+<!-- Librería externa Chart.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<!-- Lógica Interactiva en JavaScript -->
+<script>
+(() => {
+  const D = JSON.parse(document.getElementById('datos-punto2').textContent);
+  const $ = id => document.getElementById(id);
+
+  // Variables y colores
+  const cssv = k => getComputedStyle(document.documentElement).getPropertyValue(k).trim();
+  const COLOR = {
+    equipa: cssv('--equipa') || '#2563eb',
+    equipb: cssv('--equipb') || '#059669',
+    normal: cssv('--normal') || '#4f46e5',
+    gamma: cssv('--gamma') || '#ea580c',
+    accent: cssv('--accent') || '#7c3aed',
+    muted: cssv('--muted') || '#535d75'
+  };
+
+  // -------------------------------------------------------------
+  // 1. Simulador de Carga Concurrente (Live Race)
+  // -------------------------------------------------------------
+  let simEscenario = 1;
+  window.setSimEscenario = esc => {
+    simEscenario = esc;
+    $('btn-sim-esc1').setAttribute('aria-pressed', esc === 1 ? 'true' : 'false');
+    $('btn-sim-esc2').setAttribute('aria-pressed', esc === 2 ? 'true' : 'false');
+    if (esc === 1) {
+      $('sim-desc').textContent = 'Escenario 1 (Normal): perturbaciones simétricas. Se observa la gran estabilidad del Equipo A frente al Equipo B.';
+      $('time-a').textContent = '170.4 ms';
+      $('time-b').textContent = '173.7 ms';
+    } else {
+      $('sim-desc').textContent = 'Escenario 2 (Gamma): colas pesadas. La mayoría responde rápido, pero aparecen picos severos de hasta 960 ms en el Equipo B.';
+      $('time-a').textContent = '187.6 ms';
+      $('time-b').textContent = '209.3 ms';
+    }
+    $('bar-a').style.width = '0%';
+    $('bar-b').style.width = '0%';
+  };
+
+  window.runSimulation = () => {
+    const btn = $('btn-run-sim');
+    btn.disabled = true;
+    btn.textContent = '⏳ Procesando...';
+    $('bar-a').style.width = '0%';
+    $('bar-b').style.width = '0%';
+
+    const keyA = simEscenario === 1 ? 'esc1_a' : 'esc2_a';
+    const keyB = simEscenario === 1 ? 'esc1_b' : 'esc2_b';
+    const dataA = D[keyA];
+    const dataB = D[keyB];
+
+    // Pick random batch
+    const sampleA = dataA[Math.floor(Math.random() * dataA.length)];
+    const sampleB = dataB[Math.floor(Math.random() * dataB.length)];
+
+    const maxScale = simEscenario === 1 ? 320 : 980;
+    const pctA = Math.min(100, Math.max(10, (sampleA / maxScale) * 100));
+    const pctB = Math.min(100, Math.max(10, (sampleB / maxScale) * 100));
+
+    setTimeout(() => {
+      $('bar-a').style.width = pctA + '%';
+      $('time-a').textContent = sampleA.toFixed(1) + ' ms';
+    }, 150);
+
+    setTimeout(() => {
+      $('bar-b').style.width = pctB + '%';
+      $('time-b').textContent = sampleB.toFixed(1) + ' ms';
+      btn.disabled = false;
+      btn.textContent = '▶ Repetir Simulación';
+    }, 400);
+  };
+
+  // -------------------------------------------------------------
+  // 2. Gráfico Interactivo de Histogramas (Chart.js)
+  // -------------------------------------------------------------
+  let chartHist = null;
+
+  function pdfNormal(x, mu, sigma) {
+    return (1 / (sigma * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mu) / sigma, 2));
+  }
+
+  window.updateHistogramView = key => {
+    ['esc1a', 'esc1b', 'esc2a', 'esc2b'].forEach(k => {
+      const b = $('btn-g-' + k);
+      if (b) b.setAttribute('aria-pressed', ('btn-g-' + k) === ('btn-g-' + key.replace('_', '')) ? 'true' : 'false');
+    });
+
+    const bondadItem = D.bondad[key];
+    const bins = bondadItem.bins;
+    const labels = bins.map(b => b.bin);
+    const fo = bins.map(b => b.fo);
+    const fe = bins.map(b => b.fe);
+
+    let colorMain = COLOR.equipa;
+    let badgeText = '';
+    let titleSub = '';
+
+    if (key === 'esc1_a') {
+      colorMain = COLOR.equipa;
+      badgeText = 'Escenario 1 (Normal 175, 30) · Media: 170.4 ms · Mediana: 172.4 ms · Asimetría: -0.007';
+      titleSub = 'Escenario 1: Equipo A [N(175, 30)] — Frecuencias Observadas vs. Esperadas Teóricas';
+    } else if (key === 'esc1_b') {
+      colorMain = COLOR.equipb;
+      badgeText = 'Escenario 1 (Normal 170, 50) · Media: 173.7 ms · Mediana: 164.3 ms · Asimetría: +0.446';
+      titleSub = 'Escenario 1: Equipo B [N(170, 50)] — Mayor dispersión que A (S = 50.5 ms)';
+    } else if (key === 'esc2_a') {
+      colorMain = COLOR.accent;
+      badgeText = 'Escenario 2 (Gamma 1.2, 150) · Media: 187.6 ms · Mediana: 151.3 ms · Asimetría: +1.688';
+      titleSub = 'Escenario 2: Equipo A [Gamma(1.2, 150)] — Asimetría positiva con colas de espera';
+    } else {
+      colorMain = COLOR.gamma;
+      badgeText = 'Escenario 2 (Gamma 0.95, 190) · Media: 209.3 ms · Mediana: 142.3 ms · Outlier: 960.7 ms';
+      titleSub = 'Escenario 2: Equipo B [Gamma(0.95, 190)] — Picos de latencia de hasta 960 ms';
+    }
+
+    $('hist-stat-badge').textContent = badgeText;
+    $('chart-sub').textContent = titleSub;
+
+    if (chartHist) chartHist.destroy();
+
+    const ctx = $('canvas-histogram').getContext('2d');
+    chartHist = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            type: 'bar',
+            label: 'Frecuencia Observada (O_i)',
+            data: fo,
+            backgroundColor: colorMain + '99',
+            borderColor: colorMain,
+            borderWidth: 1.5,
+            borderRadius: 6
+          },
+          {
+            type: 'line',
+            label: 'Frecuencia Teórica Esperada (E_i = 60 · p_i)',
+            data: fe,
+            borderColor: '#131a2b',
+            borderWidth: 2.5,
+            tension: 0.35,
+            pointBackgroundColor: '#131a2b',
+            pointRadius: 4,
+            fill: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top', labels: { font: { family: 'Figtree', size: 12.5 } } },
+          tooltip: {
+            callbacks: {
+              afterBody: ctx => {
+                const idx = ctx[0].dataIndex;
+                const b = bins[idx];
+                return `Probabilidad p_i: ${(b.pi * 100).toFixed(2)}%
+Chi² parcial: ${b.chi.toFixed(3)}`;
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: { display: true, text: 'Número de tareas (Frecuencia)', font: { family: 'Figtree', size: 12 } },
+            grid: { color: 'rgba(19, 26, 43, .06)' }
+          },
+          x: {
+            title: { display: true, text: 'Límites de Clase / Bins (ms)', font: { family: 'Figtree', size: 12 } },
+            grid: { display: false }
+          }
+        }
+      }
+    });
+  };
+
+  // -------------------------------------------------------------
+  // 3. Explorador de Bins de Chi-cuadrado
+  // -------------------------------------------------------------
+  window.renderBinTable = key => {
+    ['e1a', 'e1b', 'e2a', 'e2b'].forEach(k => {
+      const b = $('btn-bin-' + k);
+      if (b) b.setAttribute('aria-pressed', ('btn-bin-' + k) === ('btn-bin-' + key.replace('sc', '').replace('_', '')) ? 'true' : 'false');
+    });
+
+    const item = D.bondad[key];
+    let html = `<table>
+      <thead>
+        <tr>
+          <th>Intervalo (Bin)</th>
+          <th>Frec. Observada (O_i)</th>
+          <th>Prob. Teórica (p_i)</th>
+          <th>Frec. Esperada (E_i = 60·p_i)</th>
+          <th>Discrepancia [(O_i - E_i)² / E_i]</th>
+        </tr>
+      </thead>
+      <tbody>`;
+
+    item.bins.forEach((b, i) => {
+      html += `<tr>
+        <td class="mono"><strong>Clase ${i+1}:</strong> &le; ${b.bin}</td>
+        <td class="mono font-bold">${b.fo}</td>
+        <td class="mono">${(b.pi * 100).toFixed(2)}%</td>
+        <td class="mono">${b.fe.toFixed(2)}</td>
+        <td class="mono font-semibold" style="color:var(--accent);">${b.chi.toFixed(4)}</td>
+      </tr>`;
+    });
+
+    html += `<tr style="background:rgba(19, 26, 43, .05); font-weight:700;">
+      <td>TOTALES (k = 8 clases)</td>
+      <td class="mono">60</td>
+      <td class="mono">100.0%</td>
+      <td class="mono">60.00</td>
+      <td class="mono cell-ok" style="font-size:15px;">χ²_calc = ${item.chi2.toFixed(4)}</td>
+    </tr>
+    </tbody></table>`;
+
+    $('bin-table-container').innerHTML = html;
+  };
+
+  // -------------------------------------------------------------
+  // 4. Gráfico de Comparación de Hipótesis (t vs Z)
+  // -------------------------------------------------------------
+  let chartHyp = null;
+
+  window.updateHypothesisChart = esc => {
+    $('btn-hyp-esc1').setAttribute('aria-pressed', esc === 1 ? 'true' : 'false');
+    $('btn-hyp-esc2').setAttribute('aria-pressed', esc === 2 ? 'true' : 'false');
+
+    const xVals = [];
+    const yNorm = [];
+    for (let x = -4; x <= 4; x += 0.1) {
+      xVals.push(parseFloat(x.toFixed(2)));
+      yNorm.push(pdfNormal(x, 0, 1));
+    }
+
+    const tCalc = esc === 1 ? -0.4486 : -0.6045;
+    const zCalc = esc === 1 ? -0.4333 : -0.6799;
+
+    $('chart-hyp-sub').textContent = esc === 1
+      ? 'Escenario 1: Estadísticos en zona de NO RECHAZO (t = -0,4486; z = -0,4333 | Críticos: ±1,988 y ±1,960)'
+      : 'Escenario 2: Estadísticos en zona de NO RECHAZO (t = -0,6045; z = -0,6799 | Críticos: ±1,981 y ±1,960)';
+
+    if (chartHyp) chartHyp.destroy();
+
+    const ctx = $('canvas-hypothesis').getContext('2d');
+    chartHyp = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: xVals,
+        datasets: [
+          {
+            label: 'Densidad Normal Estándar N(0, 1)',
+            data: yNorm,
+            borderColor: COLOR.normal,
+            borderWidth: 2,
+            pointRadius: 0,
+            fill: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top' },
+          tooltip: { enabled: true }
+        },
+        scales: {
+          x: {
+            title: { display: true, text: 'Valor del Estadístico Estandarizado', font: { family: 'Figtree', size: 12 } }
+          },
+          y: { display: false }
+        }
+      }
+    });
+  };
+
+  // -------------------------------------------------------------
+  // 5. ScrollSpy para Navegación
+  // -------------------------------------------------------------
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        document.querySelectorAll('.nav a').forEach(a => {
+          a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id);
+        });
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+
+  document.querySelectorAll('section[id]').forEach(s => io.observe(s));
+
+  // Inicializar vistas por defecto
+  updateHistogramView('esc1_a');
+  renderBinTable('esc1_a');
+  updateHypothesisChart(1);
+
+})();
+</script>
+
+</body>
+</html>
